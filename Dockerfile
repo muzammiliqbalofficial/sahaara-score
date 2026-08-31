@@ -38,10 +38,11 @@ RUN chown -R app:app /app
 
 USER app
 
-# Cloud Run injects PORT; default 8080 for local Docker runs.
+# Cloud Run injects PORT automatically; Azure Container Apps and local
+# Docker runs use the default.  Override via -e PORT=8080 if needed.
 ENV PORT=8080
-EXPOSE ${PORT}
+EXPOSE 8080
 
-# No --reload in production.  Uvicorn binds to 0.0.0.0 so Cloud Run can
-# reach the container.
+# No --reload in production.  Uvicorn binds to 0.0.0.0 so the container
+# orchestrator can reach it.
 CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

@@ -100,7 +100,7 @@ sahaara-score/
 │   ├── test_models.py
 │   └── test_model_path.py         # Dual-path integration tests
 ├── models_cache/                  # Trained model artifacts
-├── Dockerfile                     # Multi-stage production build (Cloud Run)
+├── Dockerfile                     # Multi-stage production build (Azure Container Apps)
 ├── .dockerignore
 ├── docker-compose.yml             # Optional local Postgres alternative
 ├── requirements-prod.txt          # Production-only dependencies
@@ -489,70 +489,153 @@ A score of 45 from a thin file (1 category, 2 months of data) means something ve
 
 ## Deployment
 
-### Backend — Google Cloud Run
+### Backend — Azure Container Apps
 
 #### Prerequisites
 
-- [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) (`gcloud`) installed and authenticated
-- A GCP project with Cloud Run API enabled
-- Docker installed locally (for building)
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) (`az`) installed and logged in
+- An **Azure for Students** account ($100 credit)
+- Docker installed locally (optional — `az acr build` builds in the cloud)
 - A Neon database connection string
 
-#### Build and deploy
+#### Region
+
+**`southeastasia`** (Singapore) — the closest Azure region to Pakistan (~4,600 km vs ~6,500 km for West Europe). All commands below use this region.
+
+#### Step 1 — Resource group
 
 ```bash
-# Set your project and region (adjust to your preferences)
-gcloud config set project YOUR_PROJECT_ID
-REGION=asia-southeast1   # or us-central1, europe-west1, etc.
+RG=sahaara-rg
+REGION=southeastasia
 
-# Build the container image and push to Artifact Registry
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/sahaara-api
-
-# Deploy to Cloud Run
-gcloud run deploy sahaara-api \
-  --image gcr.io/YOUR_PROJECT_ID/sahaara-api \
-  --region $REGION \
-  --platform managed \
-  --allow-unauthenticated \
-  --memory 512Mi \
-  --cpu 1 \
-  --timeout 120 \
-  --min-instances 0 \
-  --max-instances 3 \
-  --set-env-vars "DATABASE_URL=postgresql+psycopg://user:pass@host/db?sslmode=require" \
-  --set-env-vars "APP_ENV=production" \
-  --set-env-vars "APP_DEBUG=false" \
-  --set-env-vars "APP_SECRET_KEY=$(openssl rand -hex 32)" \
-  --set-env-vars "CORS_ORIGINS=[\"https://your-frontend.vercel.app\"]" \
-  --set-env-vars "SQL_ECHO=false"
+az group create --name $RG --location $REGION
 ```
 
-Replace `YOUR_PROJECT_ID` and the database URL with your actual values. After deployment, `gcloud` prints the service URL (e.g. `https://sahaara-api-xxxxx.asia-southeast1.run.app`). Save this — you need it for the frontend.
-
-#### Updating environment variables
+#### Step 2 — Container registry
 
 ```bash
-gcloud run services update sahaara-api \
-  --region $REGION \
-  --update-env-vars "CORS_ORIGINS=[\"https://new-frontend.vercel.app\"]"
+ACR=sahaaraacr    # must be globally unique, 5-50 chars, alphanumeric only
+
+az acr create \
+  --resource-group $RG \
+  --name $ACR \
+  --sku Basic
+```
+
+**Cost:** ~$5/month (Basic SKU, 10 GB storage). Your image is ~300 MB, well within limits.
+
+#### Step 3 — Build and push the image
+
+```bash
+az acr build \
+  --registry $ACR \
+  --image sahaara-api:latest \
+  --file Dockerfile \
+  .
+```
+
+This builds in Azure's cloud (no local Docker needed) and pushes to your registry. Takes ~3–5 minutes.
+
+#### Step 4 — Container Apps environment
+
+```bash
+az containerapp env create \
+  --name sahaara-env \
+  --resource-group $RG \
+  --location $REGION
+```
+
+**Cost:** Free (no charge for the environment itself — only for running containers).
+
+#### Step 5 — Deploy the app (basic config)
+
+```bash
+az containerapp create \
+  --name sahaara-api \
+  --resource-group $RG \
+  --environment sahaara-env \
+  --image $ACR.azurecr.io/sahaara-api:latest \
+  --registry-server $ACR.azurecr.io \
+  --target-port 8080 \
+  --ingress external \
+  --min-replicas 0 \
+  --max-replicas 2 \
+  --cpu 0.5 \
+  --memory 1.0Gi \
+  --query properties.configuration.ingress.fqdn
+```
+
+The last line prints your app's FQDN (e.g. `sahaara-api.nicesea-12345abc.southeastasia.azurecontainerapps.io`). **Save this URL — you need it for the frontend.**
+
+**Cost with `--min-replicas 0`** (scale-to-zero): nearly $0 when idle. You only pay per request. The free tier grant (180k vCPU-seconds/month) covers light demo usage easily. With `--min-replicas 1` (always warm), expect ~$35/month against your student credit.
+
+#### Step 6 — Add secrets and environment variables
+
+Sensitive values are stored as Azure secrets (encrypted at rest), then referenced by env vars:
+
+```bash
+# Store secrets (values are encrypted, not visible in plain text)
+az containerapp secret set \
+  --name sahaara-api \
+  --resource-group $RG \
+  --secrets \
+    database-url="postgresql+psycopg://YOUR_NEON_URL?sslmode=require" \
+    app-secret-key="$(openssl rand -hex 32)" \
+    cors-origins='["http://localhost:5173"]'
+
+# Map secrets to the env var names the app reads
+az containerapp update \
+  --name sahaara-api \
+  --resource-group $RG \
+  --set-env-vars \
+    DATABASE_URL=secretref:database-url \
+    APP_SECRET_KEY=secretref:app-secret-key \
+    CORS_ORIGINS=secretref:cors-origins \
+    APP_ENV=production \
+    APP_DEBUG=false \
+    SQL_ECHO=false \
+    PORT=8080
+```
+
+> **Initial CORS placeholder:** `cors-origins` starts with `localhost` — you will update it to the real Vercel domain in Step 9 below.
+
+#### Updating secrets later
+
+```bash
+az containerapp secret set \
+  --name sahaara-api \
+  --resource-group $RG \
+  --secrets cors-origins='["https://sahaara.vercel.app"]'
+
+az containerapp update \
+  --name sahaara-api \
+  --resource-group $RG \
+  --set-env-vars \
+    DATABASE_URL=secretref:database-url \
+    APP_SECRET_KEY=secretref:app-secret-key \
+    CORS_ORIGINS=secretref:cors-origins \
+    APP_ENV=production \
+    APP_DEBUG=false \
+    SQL_ECHO=false \
+    PORT=8080
 ```
 
 #### Environment variables
 
-| Variable | Required | Default | Notes |
-|----------|----------|---------|-------|
-| `DATABASE_URL` | **Yes** | — | Neon connection string with `postgresql+psycopg://` prefix and `sslmode=require` |
-| `APP_ENV` | No | `development` | Set to `production` |
-| `APP_DEBUG` | No | `true` | Set to `false` in production (disables /docs and /redoc) |
-| `APP_SECRET_KEY` | No | `change-me-in-production` | Generate with `openssl rand -hex 32` |
-| `CORS_ORIGINS` | No | localhost origins | JSON array: `["https://app.vercel.app"]` |
-| `SQL_ECHO` | No | `false` | Log all SQL — dev only |
-| `MODEL_VERSION` | No | `0.1.0` | Stamped on assessments |
-| `MIN_MODEL_DATA_POINTS` | No | `6` | Min features before model path activates |
+| Variable | Stored as | Required | Default | Notes |
+|----------|-----------|----------|---------|-------|
+| `DATABASE_URL` | **Secret** | **Yes** | — | Neon URL with `postgresql+psycopg://` prefix and `sslmode=require` |
+| `APP_SECRET_KEY` | **Secret** | No | `change-me-in-production` | Generate with `openssl rand -hex 32` |
+| `CORS_ORIGINS` | **Secret** | No | localhost origins | JSON array: `["https://app.vercel.app"]` |
+| `APP_ENV` | Plain | No | `development` | Set to `production` |
+| `APP_DEBUG` | Plain | No | `true` | Set to `false` (disables /docs and /redoc) |
+| `SQL_ECHO` | Plain | No | `false` | Log all SQL — dev only |
+| `PORT` | Plain | No | `8080` | Must match `--target-port` |
+| `MODEL_VERSION` | Plain | No | `0.1.0` | Stamped on assessments |
 
 #### Health check
 
-Cloud Run uses `/health` for readiness probes. The endpoint executes `SELECT 1` against the database, so it confirms actual connectivity — not just that the process is alive.
+Container Apps can use `/health` as a readiness probe. The endpoint executes `SELECT 1` against the database, so it confirms actual connectivity:
 
 ```
 GET /health
@@ -561,20 +644,28 @@ GET /health
 
 #### Seeding the production database
 
-After first deploy, the database has no data. From your local machine (with `DATABASE_URL` pointing to production Neon):
+After first deploy, the database is empty. From your local machine:
 
 ```bash
-# Run migrations against the production database
-DATABASE_URL="postgresql+psycopg://..." python -m alembic upgrade head
+# Run migrations
+DATABASE_URL="postgresql+psycopg://YOUR_NEON_URL?sslmode=require" python -m alembic upgrade head
 
 # Seed 500 synthetic applicants
-DATABASE_URL="postgresql+psycopg://..." python -m scripts.seed
+DATABASE_URL="postgresql+psycopg://YOUR_NEON_URL?sslmode=require" python -m scripts.seed
 
 # Batch-score them all
-DATABASE_URL="postgresql+psycopg://..." python -m scripts.batch_score
+DATABASE_URL="postgresql+psycopg://YOUR_NEON_URL?sslmode=require" python -m scripts.batch_score
 ```
 
-Or run the same commands inside a Cloud Run Job if you prefer not to expose the database URL locally.
+#### Student account notes
+
+| Concern | Status |
+|---------|--------|
+| ACR `az acr build` on student accounts | Works on Basic SKU |
+| Container Apps scale-to-zero | Supported (use `--min-replicas 0`) |
+| Free tier grant | 180k vCPU-seconds + 360k GiB-seconds/month — sufficient for demo usage |
+| Credit drain risk | Low with `--min-replicas 0`. ACR ($5/mo) is the only fixed cost |
+| Services that might fail | Azure Functions Premium, AKS, or any service requiring a paid subscription — none used here |
 
 ---
 
@@ -582,8 +673,8 @@ Or run the same commands inside a Cloud Run Job if you prefer not to expose the 
 
 #### Prerequisites
 
-- A [Vercel](https://vercel.com) account
-- The backend deployed and its URL known
+- A [Vercel](https://vercel.com) account (free)
+- The backend deployed and its FQDN known
 
 #### Deploy
 
@@ -594,46 +685,108 @@ Or run the same commands inside a Cloud Run Job if you prefer not to expose the 
 
 | Variable | Value |
 |----------|-------|
-| `VITE_API_BASE_URL` | `https://sahaara-api-xxxxx.run.app/api/v1` |
+| `VITE_API_BASE_URL` | `https://sahaara-api.nicesea-12345abc.southeastasia.azurecontainerapps.io/api/v1` |
 
-5. Deploy. Vercel builds the static site and serves it from its CDN.
+5. Deploy. Vercel builds the static site and serves it from its CDN. **Save the Vercel URL** (e.g. `https://sahaara.vercel.app`) — you need it for Step 9.
 
 #### SPA routing
 
-The `frontend/vercel.json` file rewrites all paths to `/index.html` so direct links to applicant detail pages work without a 404:
+The `frontend/vercel.json` file rewrites all paths to `/index.html` so direct links to applicant detail pages work without a 404.
 
-```json
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
-```
+#### Vercel config — no Cloud Run assumptions
+
+The `vercel.json` is platform-agnostic. It contains only an SPA rewrite rule. No origin, no CORS, no backend URL baked in. The `VITE_API_BASE_URL` env var is the only thing that ties the frontend to a specific backend, and it is set in the Vercel dashboard, not in code.
 
 #### Local development (unchanged)
 
-The Vite dev proxy (`frontend/vite.config.ts`) still forwards `/api/*` to `localhost:8000` for local work. The `VITE_API_BASE_URL` variable is only needed for the production build — when unset, the client falls back to the relative `/api/v1` path that the proxy handles.
+The Vite dev proxy (`frontend/vite.config.ts`) forwards `/api/*` to `localhost:8000`. The `VITE_API_BASE_URL` variable is only needed for production builds — when unset, the client falls back to the relative `/api/v1` path.
+
+---
+
+### Order of operations
+
+The frontend needs the backend URL, and the backend needs the frontend origin for CORS. Here is the exact sequence:
+
+```
+ 1. Create Azure resource group           ─┐
+ 2. Create container registry              │
+ 3. Build and push the image               │  (no URL dependencies)
+ 4. Create Container Apps environment      │
+ 5. Deploy the app (--min-replicas 0)     ─┘
+ 6. Add secrets and env vars (CORS = localhost placeholder)
+    ┌──────────────────────────────────────────────────┐
+    │  BACKEND URL is now known:                        │
+    │  https://sahaara-api.xxx.azurecontainerapps.io    │
+    └──────────────────────────────────────────────────┘
+ 7. Deploy frontend to Vercel with VITE_API_BASE_URL
+    pointing at the backend URL from step 6
+    ┌──────────────────────────────────────────────────┐
+    │  FRONTEND URL is now known:                       │
+    │  https://sahaara.vercel.app                       │
+    └──────────────────────────────────────────────────┘
+ 8. Seed and score the production database
+ 9. UPDATE CORS: go back and set cors-origins
+    to the real Vercel URL from step 7
+10. Verify (checklist below)
+```
+
+**Step 9 is the one you must come back for.** The backend initially allows `localhost` only. Until you update `cors-origins` to include the Vercel domain, the frontend will get CORS errors on every API call.
 
 ---
 
 ### Cold Start
 
-Both Cloud Run (scale-to-zero) and Neon (idle connection suspension) suspend after inactivity. The first request after a quiet period pays a compounded cold start:
+Both Container Apps (scale-to-zero) and Neon (idle connection suspension) suspend after inactivity. The first request after a quiet period pays a compounded cold start:
 
 | Layer | Cold cost | Mitigation |
 |-------|-----------|------------|
-| Cloud Run container | 1–3 s | `--min-instances 1` ($30–50/month depending on region) |
+| Container Apps | 2–4 s | `--min-replicas 1` (~$35/month against student credit) |
 | Neon database | 1–5 s | Neon paid plan "Keep alive" ($19/month), or a cron pinging `/health` every 4 min |
 | Combined worst case | 5–8 s | Both mitigations together |
 
-The `/health` endpoint is designed to be the ping target — it wakes both layers because it opens a real database connection.
+The `/health` endpoint wakes both layers because it opens a real database connection.
 
 **Options ranked by cost:**
 
 1. **Free**: accept 5–8 s cold starts (fine for infrequent demos)
-2. **~$0/month**: Use a free cron service (cron-job.org, GitHub Actions schedule) to `GET /health` every 4 minutes, keeping Cloud Run warm
-3. **~$19/month**: Neon paid plan keeps the database alive, reducing cold to 1–3 s
-4. **~$50/month**: `--min-instances 1` on Cloud Run + Neon keep-alive eliminates cold starts entirely
+2. **~$0/month**: Use a free cron service (cron-job.org, GitHub Actions schedule) to `GET /health` every 4 minutes
+3. **~$19/month**: Neon paid plan keeps the database alive
+4. **~$55/month**: `--min-replicas 1` + Neon keep-alive eliminates cold starts entirely
+
+---
+
+### Verification checklist
+
+Run these after Step 10. If any fail, fix before demo day.
+
+```bash
+BACKEND=https://sahaara-api.xxx.azurecontainerapps.io
+
+# 1. Health — database reachable
+curl $BACKEND/health
+# Expect: {"status":"healthy","database":"healthy",...}
+
+# 2. Applicant list — returns data
+curl "$BACKEND/api/v1/review/applicants?limit=5" | python -c "import sys,json; d=json.load(sys.stdin); print(f'{len(d)} applicants returned')"
+# Expect: "5 applicants returned"
+
+# 3. Applicant detail — explanations present
+FIRST_ID=$(curl -s "$BACKEND/api/v1/review/applicants?limit=1" | python -c "import sys,json; print(json.load(sys.stdin)[0]['id'])")
+curl "$BACKEND/api/v1/review/applicants/$FIRST_ID" | python -c "import sys,json; d=json.load(sys.stdin); fc=d['latest_assessment']['feature_contributions']; print(f'{len(fc)} contributions, model_version={d[\"latest_assessment\"][\"model_version\"]}')"
+# Expect: "8 contributions, model_version=..." (not empty)
+
+# 4. Decision write — persists
+curl -s -X POST "$BACKEND/api/v1/review/assessments/$(curl -s "$BACKEND/api/v1/review/applicants?limit=1" | python -c "import sys,json; print(json.load(sys.stdin)[0]['latest_assessment']['id'])")/decisions" \
+  -H "Content-Type: application/json" \
+  -d '{"outcome":"approved","reviewer":"deploy-test","rationale":"Deployment verification"}'
+# Expect: JSON with "outcome": "approved"
+```
+
+Open the Vercel URL in a browser and verify:
+- [ ] Applicant list loads with scores and masked CNICs
+- [ ] Clicking an applicant shows the detail page with factor bars
+- [ ] The "No data available" section appears for thin-file applicants
+- [ ] Submitting a decision works and persists on refresh
 
 ---
 
