@@ -1,4 +1,8 @@
-const BASE = "/api/v1";
+// In development the Vite proxy forwards /api/* to localhost:8000, so the
+// base URL is relative.  In production (Vercel) set VITE_API_BASE_URL to the
+// full Cloud Run URL including the path prefix, e.g.
+//   https://api-xxxxx.run.app/api/v1
+const BASE = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${url}`, {

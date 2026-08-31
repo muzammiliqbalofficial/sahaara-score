@@ -31,6 +31,19 @@ class Settings(BaseSettings):
     app_debug: bool = True
     app_secret_key: str = "change-me-in-production"
 
+    # ── CORS ────────────────────────────────────────────────────────────────
+    # Comma-separated origins allowed to call the API.  In production this
+    # comes from the CORS_ORIGINS env var (e.g. "https://app.vercel.app").
+    cors_origins: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
+    # ── Database tuning ─────────────────────────────────────────────────────
+    sql_echo: bool = False  # Log every SQL statement (dev only)
+
     # ── Scoring ─────────────────────────────────────────────────────────────
     # The minimum number of non-null feature values required before the
     # ML model is trusted.  Below this threshold the rule-based fallback fires.

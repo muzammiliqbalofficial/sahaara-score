@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Secrets
+.env
+.env.local
+
+# Testing / dev
+.pytest_cache/
+htmlcov/
+.coverage
+tests/
+
+# Frontend (not needed in backend image)
+frontend/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Docs
+README.md
+
+# Screenshots / temp
+fix*_*.png
+*.log
+
+# Docker
+docker-compose.yml
+Dockerfile

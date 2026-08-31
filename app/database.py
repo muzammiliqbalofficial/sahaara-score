@@ -34,11 +34,12 @@ def get_engine():
     _settings = get_settings()
     return create_engine(
         _settings.database_url,
-        echo=_settings.app_debug,
+        echo=_settings.sql_echo,
         pool_pre_ping=True,
         pool_recycle=300,
-        pool_size=5,
-        max_overflow=10,
+        pool_size=3,
+        max_overflow=5,
+        pool_timeout=10,
         connect_args={"connect_timeout": 10},
     )
 

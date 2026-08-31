@@ -80,6 +80,7 @@ sahaara-score/
 │   ├── index.html
 │   ├── tailwind.config.js
 │   ├── vite.config.ts
+│   ├── vercel.json                # SPA routing for Vercel deployment
 │   └── package.json
 ├── alembic/                       # Database migrations
 ├── training/                      # Model training pipeline
@@ -99,8 +100,11 @@ sahaara-score/
 │   ├── test_models.py
 │   └── test_model_path.py         # Dual-path integration tests
 ├── models_cache/                  # Trained model artifacts
+├── Dockerfile                     # Multi-stage production build (Cloud Run)
+├── .dockerignore
 ├── docker-compose.yml             # Optional local Postgres alternative
-├── requirements.txt
+├── requirements-prod.txt          # Production-only dependencies
+├── requirements.txt               # Full dependencies (incl. testing)
 ├── pyproject.toml
 └── .env.example
 ```
@@ -480,6 +484,156 @@ Storing the raw `result_value` alongside its `result_scale` means we never lose 
 ### Why confidence levels alongside scores?
 
 A score of 45 from a thin file (1 category, 2 months of data) means something very different from a score of 45 from a full file (3 categories, 12 months). Without the confidence level, a reviewer might treat them identically. The confidence level forces the reviewer to calibrate their trust in the number.
+
+---
+
+## Deployment
+
+### Backend — Google Cloud Run
+
+#### Prerequisites
+
+- [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) (`gcloud`) installed and authenticated
+- A GCP project with Cloud Run API enabled
+- Docker installed locally (for building)
+- A Neon database connection string
+
+#### Build and deploy
+
+```bash
+# Set your project and region (adjust to your preferences)
+gcloud config set project YOUR_PROJECT_ID
+REGION=asia-southeast1   # or us-central1, europe-west1, etc.
+
+# Build the container image and push to Artifact Registry
+gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/sahaara-api
+
+# Deploy to Cloud Run
+gcloud run deploy sahaara-api \
+  --image gcr.io/YOUR_PROJECT_ID/sahaara-api \
+  --region $REGION \
+  --platform managed \
+  --allow-unauthenticated \
+  --memory 512Mi \
+  --cpu 1 \
+  --timeout 120 \
+  --min-instances 0 \
+  --max-instances 3 \
+  --set-env-vars "DATABASE_URL=postgresql+psycopg://user:pass@host/db?sslmode=require" \
+  --set-env-vars "APP_ENV=production" \
+  --set-env-vars "APP_DEBUG=false" \
+  --set-env-vars "APP_SECRET_KEY=$(openssl rand -hex 32)" \
+  --set-env-vars "CORS_ORIGINS=[\"https://your-frontend.vercel.app\"]" \
+  --set-env-vars "SQL_ECHO=false"
+```
+
+Replace `YOUR_PROJECT_ID` and the database URL with your actual values. After deployment, `gcloud` prints the service URL (e.g. `https://sahaara-api-xxxxx.asia-southeast1.run.app`). Save this — you need it for the frontend.
+
+#### Updating environment variables
+
+```bash
+gcloud run services update sahaara-api \
+  --region $REGION \
+  --update-env-vars "CORS_ORIGINS=[\"https://new-frontend.vercel.app\"]"
+```
+
+#### Environment variables
+
+| Variable | Required | Default | Notes |
+|----------|----------|---------|-------|
+| `DATABASE_URL` | **Yes** | — | Neon connection string with `postgresql+psycopg://` prefix and `sslmode=require` |
+| `APP_ENV` | No | `development` | Set to `production` |
+| `APP_DEBUG` | No | `true` | Set to `false` in production (disables /docs and /redoc) |
+| `APP_SECRET_KEY` | No | `change-me-in-production` | Generate with `openssl rand -hex 32` |
+| `CORS_ORIGINS` | No | localhost origins | JSON array: `["https://app.vercel.app"]` |
+| `SQL_ECHO` | No | `false` | Log all SQL — dev only |
+| `MODEL_VERSION` | No | `0.1.0` | Stamped on assessments |
+| `MIN_MODEL_DATA_POINTS` | No | `6` | Min features before model path activates |
+
+#### Health check
+
+Cloud Run uses `/health` for readiness probes. The endpoint executes `SELECT 1` against the database, so it confirms actual connectivity — not just that the process is alive.
+
+```
+GET /health
+→ {"status": "healthy", "database": "healthy", "version": "1.1.0-...", "env": "production"}
+```
+
+#### Seeding the production database
+
+After first deploy, the database has no data. From your local machine (with `DATABASE_URL` pointing to production Neon):
+
+```bash
+# Run migrations against the production database
+DATABASE_URL="postgresql+psycopg://..." python -m alembic upgrade head
+
+# Seed 500 synthetic applicants
+DATABASE_URL="postgresql+psycopg://..." python -m scripts.seed
+
+# Batch-score them all
+DATABASE_URL="postgresql+psycopg://..." python -m scripts.batch_score
+```
+
+Or run the same commands inside a Cloud Run Job if you prefer not to expose the database URL locally.
+
+---
+
+### Frontend — Vercel
+
+#### Prerequisites
+
+- A [Vercel](https://vercel.com) account
+- The backend deployed and its URL known
+
+#### Deploy
+
+1. Push the repo to GitHub.
+2. Import the project in Vercel. Set the **Root Directory** to `frontend`.
+3. Vercel auto-detects Vite. Build command: `npm run build`. Output: `dist`.
+4. Add the environment variable:
+
+| Variable | Value |
+|----------|-------|
+| `VITE_API_BASE_URL` | `https://sahaara-api-xxxxx.run.app/api/v1` |
+
+5. Deploy. Vercel builds the static site and serves it from its CDN.
+
+#### SPA routing
+
+The `frontend/vercel.json` file rewrites all paths to `/index.html` so direct links to applicant detail pages work without a 404:
+
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+#### Local development (unchanged)
+
+The Vite dev proxy (`frontend/vite.config.ts`) still forwards `/api/*` to `localhost:8000` for local work. The `VITE_API_BASE_URL` variable is only needed for the production build — when unset, the client falls back to the relative `/api/v1` path that the proxy handles.
+
+---
+
+### Cold Start
+
+Both Cloud Run (scale-to-zero) and Neon (idle connection suspension) suspend after inactivity. The first request after a quiet period pays a compounded cold start:
+
+| Layer | Cold cost | Mitigation |
+|-------|-----------|------------|
+| Cloud Run container | 1–3 s | `--min-instances 1` ($30–50/month depending on region) |
+| Neon database | 1–5 s | Neon paid plan "Keep alive" ($19/month), or a cron pinging `/health` every 4 min |
+| Combined worst case | 5–8 s | Both mitigations together |
+
+The `/health` endpoint is designed to be the ping target — it wakes both layers because it opens a real database connection.
+
+**Options ranked by cost:**
+
+1. **Free**: accept 5–8 s cold starts (fine for infrequent demos)
+2. **~$0/month**: Use a free cron service (cron-job.org, GitHub Actions schedule) to `GET /health` every 4 minutes, keeping Cloud Run warm
+3. **~$19/month**: Neon paid plan keeps the database alive, reducing cold to 1–3 s
+4. **~$50/month**: `--min-instances 1` on Cloud Run + Neon keep-alive eliminates cold starts entirely
 
 ---
 
