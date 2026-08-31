@@ -1,0 +1,63 @@
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ──────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Environment / secrets ─────────────────────────────────────────────────
+# .env (at any depth) is never committed — it holds real credentials.
+.env
+.env.local
+.env.*.local
+
+# ── Node / Frontend ───────────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*.code-workspace
+
+# ── OS ────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ── Database ──────────────────────────────────────────────────────────────
+*.db
+*.sqlite3
+
+# ── Testing / Coverage ────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+
+# ── Logs / temp ───────────────────────────────────────────────────────────
+*.log
+
+# Temporary verification screenshots
+fix*_*.png
+
+# ── Large model artefacts ────────────────────────────────────────────────
+# models_cache/ is committed (the trained model + calibrator are ~0.3 MB,
+# small enough that a fresh clone can serve without retraining).
+# If models grow beyond ~10 MB, re-add `models_cache/` here and switch
+# to Git LFS or external storage.
+*.ckpt
+*.h5
+*.pt
+*.onnx

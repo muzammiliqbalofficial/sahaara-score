@@ -1,0 +1,108 @@
+{
+  "version": "1.1.0-20260828220632",
+  "trained_at": "2026-08-28T22:06:32.883291",
+  "random_seed": 42,
+  "n_features": 8,
+  "feature_names": [
+    "payment_on_time_ratio",
+    "longest_on_time_streak",
+    "mean_days_late",
+    "payment_consistency",
+    "academic_signal",
+    "household_burden",
+    "income_confidence",
+    "total_income_normalised"
+  ],
+  "calibrated": true,
+  "metrics": {
+    "overall": {
+      "accuracy": 0.57,
+      "precision": 0.5972,
+      "recall": 0.7544,
+      "n": 100,
+      "n_positive": 57,
+      "roc_auc": 0.5824,
+      "mse": 0.0221
+    },
+    "by_tier": {
+      "thin": {
+        "accuracy": 0.5417,
+        "precision": 0.5263,
+        "recall": 0.8333,
+        "n": 24,
+        "n_positive": 12,
+        "roc_auc": 0.6562,
+        "mse": 0.0163,
+        "mean_predicted_score": 0.577,
+        "mean_actual_score": 0.577
+      },
+      "medium": {
+        "accuracy": 0.6774,
+        "precision": 0.8421,
+        "recall": 0.6957,
+        "n": 31,
+        "n_positive": 23,
+        "roc_auc": 0.6848,
+        "mse": 0.0175,
+        "mean_predicted_score": 0.55,
+        "mean_actual_score": 0.531
+      },
+      "full": {
+        "accuracy": 0.5111,
+        "precision": 0.5,
+        "recall": 0.7727,
+        "n": 45,
+        "n_positive": 22,
+        "roc_auc": 0.5751,
+        "mse": 0.0284,
+        "mean_predicted_score": 0.608,
+        "mean_actual_score": 0.582
+      }
+    },
+    "calibration": {
+      "bins": [
+        {
+          "bin": "0.0-0.2",
+          "n": 1,
+          "avg_pred": 0.11,
+          "approval_rate": 1.0
+        },
+        {
+          "bin": "0.2-0.4",
+          "n": 0,
+          "avg_pred": null,
+          "approval_rate": null
+        },
+        {
+          "bin": "0.4-0.6",
+          "n": 78,
+          "avg_pred": 0.525,
+          "approval_rate": 0.538
+        },
+        {
+          "bin": "0.6-0.8",
+          "n": 0,
+          "avg_pred": null,
+          "approval_rate": null
+        },
+        {
+          "bin": "0.8-1.0",
+          "n": 21,
+          "avg_pred": 0.819,
+          "approval_rate": 0.667
+        }
+      ],
+      "ece": 0.051
+    }
+  },
+  "feature_importance": {
+    "payment_on_time_ratio": 305,
+    "longest_on_time_streak": 171,
+    "mean_days_late": 330,
+    "payment_consistency": 543,
+    "academic_signal": 474,
+    "household_burden": 427,
+    "income_confidence": 267,
+    "total_income_normalised": 558
+  }
+}
