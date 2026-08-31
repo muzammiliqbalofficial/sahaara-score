@@ -38,8 +38,8 @@ RUN chown -R app:app /app
 
 USER app
 
-# Cloud Run injects PORT automatically; Azure Container Apps and local
-# Docker runs use the default.  Override via -e PORT=8080 if needed.
+# Render and Cloud Run inject PORT automatically; local Docker runs use
+# the default.  Override via -e PORT=8080 if needed.
 ENV PORT=8080
 EXPOSE 8080
 
