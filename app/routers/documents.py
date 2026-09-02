@@ -247,10 +247,31 @@ async def parse_bundle(
                 confidence_level=score["confidence_level"],
                 signal_categories_count=score["signal_categories_count"],
                 non_null_feature_count=score["non_null_feature_count"],
+                anomaly_risk_score=score["anomaly_risk_score"],
+                anomaly_risk_level=score["anomaly_risk_level"],
+                anomaly_audit_required=score["anomaly_audit_required"],
+                anomaly_flags_count=score["anomaly_flags_count"],
+                anomaly_report=score["anomaly_report"],
             )
             db.add(assessment)
             db.commit()
             db.refresh(assessment)
-            result.assessment = AssessmentRead.model_validate(assessment)
+            result.assessment = AssessmentRead(
+                id=assessment.id,
+                applicant_id=assessment.applicant_id,
+                score=assessment.score,
+                band=assessment.band,
+                model_version=assessment.model_version,
+                is_rule_based=assessment.is_rule_based,
+                confidence_level=assessment.confidence_level,
+                signal_categories_count=assessment.signal_categories_count,
+                non_null_feature_count=assessment.non_null_feature_count,
+                anomaly_risk_score=assessment.anomaly_risk_score,
+                anomaly_risk_level=assessment.anomaly_risk_level,
+                anomaly_audit_required=assessment.anomaly_audit_required,
+                anomaly_flags_count=assessment.anomaly_flags_count,
+                top_flags=assessment.top_flags,
+                created_at=assessment.created_at,
+            )
 
     return result

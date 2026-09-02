@@ -34,7 +34,7 @@ from app.schemas.review import (
     DecisionCount,
 )
 from app.schemas.applicant import ApplicantRead
-from app.utils.enums import DecisionOutcome
+from app.utils.enums import DecisionOutcome, RiskLevel
 
 router = APIRouter(prefix="/review", tags=["review"])
 
@@ -66,6 +66,11 @@ def _assessment_to_read(a: Assessment) -> AssessmentRead:
         confidence_level=a.confidence_level,
         signal_categories_count=a.signal_categories_count,
         non_null_feature_count=a.non_null_feature_count,
+        anomaly_risk_score=a.anomaly_risk_score,
+        anomaly_risk_level=a.anomaly_risk_level,
+        anomaly_audit_required=a.anomaly_audit_required,
+        anomaly_flags_count=a.anomaly_flags_count,
+        top_flags=a.top_flags,
         created_at=a.created_at,
     )
 
@@ -82,8 +87,14 @@ def _assessment_to_full(a: Assessment) -> AssessmentWithExplanations:
         confidence_level=a.confidence_level,
         signal_categories_count=a.signal_categories_count,
         non_null_feature_count=a.non_null_feature_count,
+        anomaly_risk_score=a.anomaly_risk_score,
+        anomaly_risk_level=a.anomaly_risk_level,
+        anomaly_audit_required=a.anomaly_audit_required,
+        anomaly_flags_count=a.anomaly_flags_count,
+        top_flags=a.top_flags,
         created_at=a.created_at,
         feature_contributions=a.feature_contributions,
+        anomaly_report=a.anomaly_report,
     )
 
 
@@ -122,6 +133,21 @@ def list_scored_applicants(
         None,
         description="Filter by review status: decided, undecided",
     ),
+    risk_level: str | None = Query(
+        None,
+        description=(
+            "Filter by anomaly risk level: clean, low_risk, moderate_flag, "
+            "high_suspicion, critical_mismatch"
+        ),
+    ),
+    audit_required: bool | None = Query(
+        None,
+        description="Only applicants whose anomaly verdict mandates a field audit.",
+    ),
+    min_anomaly_score: float | None = Query(
+        None, ge=0, le=100,
+        description="Minimum anomaly risk score (0-100).",
+    ),
     sort_by: SortField = Query(SortField.created_at),
     sort_order: str = Query("desc", description="asc or desc"),
     search: str | None = Query(None, description="Search by city, district, or CNIC"),
@@ -131,7 +157,8 @@ def list_scored_applicants(
     List scored applicants for the reviewer dashboard.
 
     Returns applicant info joined with their latest assessment, sortable
-    and filterable by band, confidence, review status, and free text.
+    and filterable by band, confidence, review status, fraud-shield risk
+    level, audit requirement, and minimum anomaly score.
     """
     # ── Fetch paginated applicants ────────────────────────────────────
     query = db.query(Applicant).order_by(Applicant.created_at.desc())
@@ -224,6 +251,23 @@ def list_scored_applicants(
             continue
         if review_status == "undecided" and decision is not None:
             continue
+        # Apply anomaly risk-level filter (unscored applicants never match).
+        if risk_level and (
+            assessment is None or assessment.anomaly_risk_level.value != risk_level
+        ):
+            continue
+        # Apply audit-required filter (unscored applicants never match).
+        if audit_required is not None and (
+            assessment is None
+            or bool(assessment.anomaly_audit_required) != audit_required
+        ):
+            continue
+        # Apply minimum anomaly score filter (unscored applicants never match).
+        if min_anomaly_score is not None and (
+            assessment is None
+            or assessment.anomaly_risk_score < min_anomaly_score
+        ):
+            continue
 
         results.append(
             ScoredApplicant(
@@ -236,6 +280,19 @@ def list_scored_applicants(
                 latest_assessment=_assessment_to_read(assessment) if assessment else None,
                 has_decision=decision is not None,
                 latest_decision_outcome=decision.outcome.value if decision else None,
+                anomaly_risk_score=(
+                    assessment.anomaly_risk_score if assessment else 0.0
+                ),
+                anomaly_risk_level=(
+                    assessment.anomaly_risk_level if assessment else RiskLevel.CLEAN
+                ),
+                anomaly_audit_required=(
+                    assessment.anomaly_audit_required if assessment else False
+                ),
+                anomaly_flags_count=(
+                    assessment.anomaly_flags_count if assessment else 0
+                ),
+                top_flags=assessment.top_flags if assessment else [],
             )
         )
 

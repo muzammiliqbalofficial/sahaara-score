@@ -1,14 +1,22 @@
 """
-Batch-score all applicants that don't have an assessment yet.
+Delete every assessment and re-score all applicants from scratch.
+
+Use after a scoring-engine change (new features, new model, new anomaly
+rules) so existing assessments carry the new output.  Reviewer decisions
+are cascade-deleted with their assessments — run this only when losing
+the decision history is acceptable.
 
 Usage:
-    .venv\\Scripts\\python.exe -m scripts.batch_score
+    .venv\\Scripts\\python.exe -m scripts.rescore_all
 """
 
 import sys
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from sqlalchemy import delete
 
 from app.database import _get_session_factory
 from app.models.applicant import Applicant
@@ -21,22 +29,19 @@ def main():
     db = SessionLocal()
 
     try:
-        # Find applicants without assessments.
-        scored_ids = {
-            row[0]
-            for row in db.query(Assessment.applicant_id).distinct().all()
-        }
-        all_applicants = db.query(Applicant).all()
-        unscored = [a for a in all_applicants if a.id not in scored_ids]
+        # Cascade removes reviewer decisions attached to old assessments.
+        deleted = db.execute(delete(Assessment))
+        db.commit()
+        print(f"Deleted {deleted.rowcount} old assessments.")
 
-        print(f"Total applicants: {len(all_applicants)}")
-        print(f"Already scored:   {len(scored_ids)}")
-        print(f"To score:         {len(unscored)}")
-        print()
+        applicants = db.query(Applicant).all()
+        print(f"Re-scoring {len(applicants)} applicants...")
 
-        for i, applicant in enumerate(unscored):
+        risk_levels = Counter()
+        actions = Counter()
+        for i, applicant in enumerate(applicants):
             result = score_applicant(applicant)
-            assessment = Assessment(
+            db.add(Assessment(
                 applicant_id=applicant.id,
                 score=result["score"],
                 band=result["band"],
@@ -51,15 +56,25 @@ def main():
                 anomaly_audit_required=result["anomaly_audit_required"],
                 anomaly_flags_count=result["anomaly_flags_count"],
                 anomaly_report=result["anomaly_report"],
-            )
-            db.add(assessment)
+            ))
+            risk_levels[result["anomaly_risk_level"].value] += 1
+            actions[
+                result["anomaly_report"]["recommendation"]["action_type"]
+            ] += 1
 
             if (i + 1) % 50 == 0:
                 db.flush()
-                print(f"  Scored {i + 1}/{len(unscored)}...")
+                print(f"  Scored {i + 1}/{len(applicants)}...")
 
         db.commit()
-        print(f"\nDone. Scored {len(unscored)} applicants.")
+
+        print(f"\nDone. Re-scored {len(applicants)} applicants.")
+        print("\nAnomaly risk-level distribution:")
+        for level, count in sorted(risk_levels.items()):
+            print(f"  {level:20s} {count:4d}")
+        print("\nRecommended actions:")
+        for action, count in sorted(actions.items()):
+            print(f"  {action:24s} {count:4d}")
 
     except Exception as e:
         db.rollback()

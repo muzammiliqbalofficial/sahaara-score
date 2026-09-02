@@ -21,6 +21,7 @@ import joblib
 
 from app.config import get_settings
 from app.models.assessment import Assessment
+from app.services.anomaly_service import detect_anomalies
 from app.services.explainability import (
     explain_model_prediction,
     explain_rule_based,
@@ -298,6 +299,11 @@ def score_applicant(applicant) -> dict:
         "data_sufficiency_summary": str,
         "categories_present": list[str],
         "months_of_data": int,
+        "anomaly_risk_score": float,
+        "anomaly_risk_level": RiskLevel,
+        "anomaly_audit_required": bool,
+        "anomaly_flags_count": int,
+        "anomaly_report": dict,   # Full fraud-shield report (JSONB-ready)
     }
     """
     feature_set = build_feature_vector(applicant)
@@ -319,6 +325,18 @@ def score_applicant(applicant) -> dict:
         is_rule_based = True
         version = "rule-based"
 
+    # Fraud shield — runs on the same records the score was computed from,
+    # with the score and confidence as context for the policy recommendation.
+    anomaly_report = detect_anomalies(
+        applicant,
+        applicant.utility_records or [],
+        applicant.academic_records or [],
+        applicant.income_signals or [],
+        feature_set,
+        score=score,
+        confidence=confidence,
+    )
+
     return {
         "score": round(score, 2),
         "band": _score_to_band(score),
@@ -332,4 +350,10 @@ def score_applicant(applicant) -> dict:
         # First-class sufficiency fields — not side metadata.
         "signal_categories_count": len(feature_set.categories_present),
         "non_null_feature_count": feature_set.non_null_count,
+        # Fraud shield verdict.
+        "anomaly_risk_score": anomaly_report.risk_score,
+        "anomaly_risk_level": anomaly_report.risk_level,
+        "anomaly_audit_required": anomaly_report.audit_required,
+        "anomaly_flags_count": anomaly_report.flags_count,
+        "anomaly_report": anomaly_report.to_dict(),
     }

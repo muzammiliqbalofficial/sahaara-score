@@ -55,6 +55,11 @@ def run_assessment(
         confidence_level=result["confidence_level"],
         signal_categories_count=result["signal_categories_count"],
         non_null_feature_count=result["non_null_feature_count"],
+        anomaly_risk_score=result["anomaly_risk_score"],
+        anomaly_risk_level=result["anomaly_risk_level"],
+        anomaly_audit_required=result["anomaly_audit_required"],
+        anomaly_flags_count=result["anomaly_flags_count"],
+        anomaly_report=result["anomaly_report"],
     )
 
     assessment_repo = AssessmentRepository(db)
@@ -76,6 +81,12 @@ def run_assessment(
         data_sufficiency_summary=result["data_sufficiency_summary"],
         categories_present=result["categories_present"],
         months_of_data=result["months_of_data"],
+        anomaly_risk_score=assessment.anomaly_risk_score,
+        anomaly_risk_level=assessment.anomaly_risk_level,
+        anomaly_audit_required=assessment.anomaly_audit_required,
+        anomaly_flags_count=assessment.anomaly_flags_count,
+        top_flags=assessment.top_flags,
+        anomaly_report=result["anomaly_report"],
     )
 
 
@@ -126,4 +137,10 @@ def get_assessment(
         non_null_feature_count=assessment.non_null_feature_count,
         created_at=assessment.created_at,
         feature_contributions=assessment.feature_contributions,
+        anomaly_risk_score=assessment.anomaly_risk_score,
+        anomaly_risk_level=assessment.anomaly_risk_level,
+        anomaly_audit_required=assessment.anomaly_audit_required,
+        anomaly_flags_count=assessment.anomaly_flags_count,
+        top_flags=assessment.top_flags,
+        anomaly_report=assessment.anomaly_report,
     )

@@ -4,6 +4,11 @@ Pydantic schemas for the Assessment entity.
 The ``AssessmentWithExplanations`` schema is the primary response format
 for the scoring API.  It includes structured feature contributions that
 are safe to render directly in a reviewer dashboard.
+
+The anomaly schemas (``AnomalyFlagSchema``, ``AnomalyReportSchema``,
+``PolicyRecommendationSchema``) mirror the fraud-shield report stored in
+the ``anomaly_report`` JSONB column, so a stored report round-trips into
+an API response without translation.
 """
 
 import uuid
@@ -11,7 +16,13 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from app.utils.enums import ConfidenceLevel, ScoreBand
+from app.utils.enums import (
+    AnomalySeverity,
+    ConfidenceLevel,
+    PolicyActionType,
+    RiskLevel,
+    ScoreBand,
+)
 
 
 class FeatureContribution(BaseModel):
@@ -24,6 +35,42 @@ class FeatureContribution(BaseModel):
     explanation: str  # Plain-language sentence for the reviewer
     raw_value: float | None = None
     no_data: bool = False  # True when the feature had no underlying data
+
+
+# ── Anomaly / fraud shield ──────────────────────────────────────────────────
+
+
+class AnomalyFlagSchema(BaseModel):
+    """One fraud-shield rule firing, with its evidence."""
+
+    code: str  # e.g. "INCOME_BILL_MISMATCH"
+    severity: AnomalySeverity
+    title: str  # Short headline for queue badges
+    message: str  # Reviewer-readable explanation
+    evidence: dict = {}  # The numeric facts behind the flag
+
+
+class PolicyRecommendationSchema(BaseModel):
+    """The institutional action recommended for this applicant."""
+
+    action_type: PolicyActionType
+    recommended_support: str  # e.g. "Full Merit-Need Scholarship (100% Tuition)"
+    summary_justification: str  # Two sentences, explainable to donors
+
+
+class AnomalyReportSchema(BaseModel):
+    """Full fraud-shield report attached to an assessment."""
+
+    risk_score: float = 0.0
+    risk_level: RiskLevel = RiskLevel.CLEAN
+    audit_required: bool = False
+    flags_count: int = 0
+    flags: list[AnomalyFlagSchema] = []
+    top_flags: list[str] = []  # Codes of the most severe findings, worst first
+    recommendation: PolicyRecommendationSchema | None = None
+
+
+# ── Assessments ─────────────────────────────────────────────────────────────
 
 
 class AssessmentRead(BaseModel):
@@ -39,6 +86,13 @@ class AssessmentRead(BaseModel):
     # Data sufficiency — first-class fields, not side metadata.
     signal_categories_count: int = 0
     non_null_feature_count: int = 0
+    # Anomaly shield summary — flat so the reviewer queue can show and
+    # filter on it without loading the full report.
+    anomaly_risk_score: float = 0.0
+    anomaly_risk_level: RiskLevel = RiskLevel.CLEAN
+    anomaly_audit_required: bool = False
+    anomaly_flags_count: int = 0
+    top_flags: list[str] = []
     created_at: datetime
 
 
@@ -51,3 +105,7 @@ class AssessmentWithExplanations(AssessmentRead):
     data_sufficiency_summary: str | None = None
     categories_present: list[str] | None = None
     months_of_data: int | None = None
+
+    # Full fraud-shield report with flags, evidence, and the policy
+    # recommendation (the summary fields above are flattened from it).
+    anomaly_report: AnomalyReportSchema | None = None

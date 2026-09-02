@@ -16,9 +16,12 @@ from app.schemas.records import (
     UtilityRecordRead,
 )
 from app.schemas.assessment import (
+    AnomalyFlagSchema,
+    AnomalyReportSchema,
     AssessmentRead,
     AssessmentWithExplanations,
     FeatureContribution,
+    PolicyRecommendationSchema,
 )
 
 __all__ = [
@@ -34,4 +37,7 @@ __all__ = [
     "AssessmentRead",
     "AssessmentWithExplanations",
     "FeatureContribution",
+    "AnomalyFlagSchema",
+    "AnomalyReportSchema",
+    "PolicyRecommendationSchema",
 ]

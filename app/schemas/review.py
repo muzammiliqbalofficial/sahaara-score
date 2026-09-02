@@ -4,6 +4,10 @@ Pydantic schemas for the reviewer dashboard endpoints.
 These extend the base applicant/assessment schemas with the joined data
 a reviewer actually needs: applicant info alongside their latest score,
 decision history, and summary statistics.
+
+Anomaly shield summary fields are flattened onto the queue item so the
+reviewer list can badge and filter on fraud risk without loading each
+applicant's full report.
 """
 
 import uuid
@@ -12,13 +16,34 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from app.schemas.applicant import ApplicantRead
-from app.schemas.assessment import AssessmentRead, AssessmentWithExplanations
+from app.schemas.assessment import (
+    AnomalyFlagSchema,
+    AnomalyReportSchema,
+    AssessmentRead,
+    AssessmentWithExplanations,
+    PolicyRecommendationSchema,
+)
 from app.schemas.records import (
     AcademicRecordRead,
     IncomeSignalRead,
     UtilityRecordRead,
 )
-from app.utils.enums import ConfidenceLevel, DecisionOutcome, ScoreBand
+from app.utils.enums import ConfidenceLevel, DecisionOutcome, RiskLevel, ScoreBand
+
+__all__ = [
+    "ScoredApplicant",
+    "ApplicantDetail",
+    "DecisionCreate",
+    "DecisionRead",
+    "BandCount",
+    "ConfidenceCount",
+    "CompletenessCount",
+    "DecisionCount",
+    "SummaryStats",
+    "AnomalyFlagSchema",
+    "AnomalyReportSchema",
+    "PolicyRecommendationSchema",
+]
 
 
 # ── Scored applicant list ──────────────────────────────────────────────────
@@ -43,6 +68,14 @@ class ScoredApplicant(BaseModel):
     # Review status.
     has_decision: bool = False
     latest_decision_outcome: str | None = None
+
+    # Anomaly shield summary (flattened from the latest assessment; the
+    # CLEAN defaults apply to unscored applicants).
+    anomaly_risk_score: float = 0.0
+    anomaly_risk_level: RiskLevel = RiskLevel.CLEAN
+    anomaly_audit_required: bool = False
+    anomaly_flags_count: int = 0
+    top_flags: list[str] = []
 
 
 # ── Applicant detail (full) ────────────────────────────────────────────────

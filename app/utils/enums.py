@@ -115,3 +115,56 @@ class ConfidenceLevel(str, enum.Enum):
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
+
+
+class AnomalySeverity(str, enum.Enum):
+    """
+    Severity of a single fraud-shield flag.
+
+    INFO:     statistical oddity worth noting, not evidence of deception.
+    WARNING:  a real inconsistency that a reviewer should examine.
+    CRITICAL: a contradiction that makes the declared circumstances
+              implausible without further verification.
+    """
+
+    INFO = "info"
+    WARNING = "warning"
+    CRITICAL = "critical"
+
+
+class RiskLevel(str, enum.Enum):
+    """
+    Overall risk classification derived from the anomaly risk score.
+
+    CLEAN:             no flags at all.
+    LOW_RISK:          minor observations only (INFO-level).
+    MODERATE_FLAG:     at least one WARNING — desk review recommended.
+    HIGH_SUSPICION:    accumulated warnings — field audit recommended.
+    CRITICAL_MISMATCH: at least one CRITICAL flag — declared data is
+                       internally contradictory.
+    """
+
+    CLEAN = "clean"
+    LOW_RISK = "low_risk"
+    MODERATE_FLAG = "moderate_flag"
+    HIGH_SUSPICION = "high_suspicion"
+    CRITICAL_MISMATCH = "critical_mismatch"
+
+
+class PolicyActionType(str, enum.Enum):
+    """
+    The recommended institutional action for an applicant, derived from
+    their anomaly risk level.
+
+    AUTO_APPROVE:        clean file — safe for streamlined disbursement.
+    STANDARD_REVIEW:     moderate flags — a reviewer examines the file.
+    FIELD_AUDIT_REQUIRED: high suspicion — physical verification before
+                          any funds are released.
+    HIGH_RISK_REJECT:    multiple critical contradictions — support
+                         withheld pending corrected documentation.
+    """
+
+    AUTO_APPROVE = "auto_approve"
+    STANDARD_REVIEW = "standard_review"
+    FIELD_AUDIT_REQUIRED = "field_audit_required"
+    HIGH_RISK_REJECT = "high_risk_reject"

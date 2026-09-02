@@ -21,7 +21,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-from app.utils.enums import ConfidenceLevel, ScoreBand
+from app.utils.enums import ConfidenceLevel, RiskLevel, ScoreBand
 from app.utils.types import StrEnumType
 
 
@@ -82,6 +82,29 @@ class Assessment(Base):
         comment="How many of the 8 engineered features had non-null values.",
     )
 
+    # Anomaly / fraud shield ──────────────────────────────────────────────
+    # The fraud-shield verdict is persisted as flat columns (filterable in
+    # SQL) plus a JSONB report carrying the full flags, evidence, and the
+    # policy recommendation for reviewer detail views.
+    anomaly_risk_score: Mapped[float] = mapped_column(
+        Float, nullable=False, default=0.0,
+        comment="0-100 fraud-shield risk score; 0 means no flags fired.",
+    )
+    anomaly_risk_level: Mapped[RiskLevel] = mapped_column(
+        StrEnumType(RiskLevel), nullable=False, default=RiskLevel.CLEAN,
+    )
+    anomaly_audit_required: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False,
+        comment="True when the anomaly engine mandates field verification.",
+    )
+    anomaly_flags_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0,
+    )
+    anomaly_report: Mapped[dict | None] = mapped_column(
+        JSONB, nullable=True,
+        comment="Full fraud-shield report: flags, evidence, recommendation.",
+    )
+
     # Timestamps ─────────────────────────────────────────────────────────────
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -97,6 +120,19 @@ class Assessment(Base):
         cascade="all, delete-orphan",
         lazy="selectin",
     )
+
+    @property
+    def top_flags(self) -> list[str]:
+        """Codes of the most severe anomaly flags (worst first).
+
+        Derived from the JSONB report so every schema serialising this
+        object via ``from_attributes`` gets the queue-friendly summary
+        without extra queries.
+        """
+        report = self.anomaly_report
+        if not isinstance(report, dict):
+            return []
+        return report.get("top_flags", [])
 
     def __repr__(self) -> str:
         return (
