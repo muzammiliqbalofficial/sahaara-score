@@ -15,6 +15,7 @@ from sqlalchemy import text
 from app.config import get_settings
 from app.database import get_engine
 from app.routers import applicants_router, assessments_router
+from app.routers.documents import router as documents_router
 from app.routers.review import router as review_router
 
 settings = get_settings()
@@ -46,6 +47,7 @@ app.add_middleware(
 app.include_router(applicants_router, prefix="/api/v1")
 app.include_router(assessments_router, prefix="/api/v1")
 app.include_router(review_router, prefix="/api/v1")
+app.include_router(documents_router, prefix="/api/v1")
 
 
 # ── Health check ────────────────────────────────────────────────────────────

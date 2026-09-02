@@ -53,6 +53,14 @@ class Settings(BaseSettings):
     # model artefact.  Bump when retraining.
     model_version: str = "0.1.0"
 
+    # ── Alibaba Cloud Model Studio (Qwen-VL document parsing) ──────────────
+    # DashScope API key from https://bailian.console.aliyun.com/.  When the
+    # key is empty (or the API call fails), the document parser falls back to
+    # deterministic mock extraction so demos work offline without spending
+    # API quota — every response reports which mode produced it.
+    dashscope_api_key: str = ""
+    alibaba_qwen_model: str = "qwen-vl-max"
+
 
 @lru_cache
 def get_settings() -> Settings:

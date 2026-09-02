@@ -3,6 +3,7 @@ fastapi>=0.110
 uvicorn[standard]>=0.27
 pydantic>=2.6
 pydantic-settings>=2.1
+python-multipart>=0.0.9  # file uploads for the document parser endpoints
 
 # Database
 sqlalchemy>=2.0.25
@@ -20,3 +21,4 @@ joblib>=1.3
 
 # Utilities
 python-dotenv>=1.0
+httpx>=0.26  # Qwen-VL document parser API calls to Alibaba Cloud DashScope

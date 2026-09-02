@@ -12,6 +12,11 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.records import (
+    AcademicRecordRead,
+    IncomeSignalRead,
+    UtilityRecordRead,
+)
 from app.utils.enums import ApplicantType
 
 
@@ -45,6 +50,6 @@ class ApplicantRead(BaseModel):
 class ApplicantWithRecords(ApplicantRead):
     """Applicant with all related records hydrated — used for scoring."""
 
-    utility_records: list["UtilityRecordRead"] = []  # type: ignore[name-defined]
-    academic_records: list["AcademicRecordRead"] = []  # type: ignore[name-defined]
-    income_signals: list["IncomeSignalRead"] = []  # type: ignore[name-defined]
+    utility_records: list[UtilityRecordRead] = []
+    academic_records: list[AcademicRecordRead] = []
+    income_signals: list[IncomeSignalRead] = []
