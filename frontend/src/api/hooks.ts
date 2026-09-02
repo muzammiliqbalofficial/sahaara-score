@@ -6,6 +6,7 @@ import type {
   SummaryStats,
   DecisionCreate,
   DecisionRead,
+  CaseBriefResponse,
 } from "./types";
 
 // ── Applicant list ──────────────────────────────────────────────────────
@@ -19,6 +20,9 @@ export interface ApplicantListParams {
   sort_by?: string;
   sort_order?: string;
   search?: string;
+  risk_level?: string;
+  audit_required?: string;
+  min_anomaly_score?: string;
 }
 
 function useApplicantList(params: ApplicantListParams) {
@@ -34,6 +38,9 @@ function useApplicantList(params: ApplicantListParams) {
         sort_by: params.sort_by,
         sort_order: params.sort_order,
         search: params.search,
+        risk_level: params.risk_level,
+        audit_required: params.audit_required,
+        min_anomaly_score: params.min_anomaly_score,
       }),
   });
 }
@@ -81,4 +88,22 @@ function useSubmitDecision() {
   });
 }
 
-export { useApplicantList, useApplicantDetail, useSummary, useSubmitDecision };
+// ── Case brief generation ───────────────────────────────────────────────
+
+function useCaseBrief(assessmentId: string | undefined) {
+  return useMutation({
+    mutationFn: () =>
+      post<CaseBriefResponse>(
+        `/assessments/${assessmentId}/generate-case-brief`,
+        {},
+      ),
+  });
+}
+
+export {
+  useApplicantList,
+  useApplicantDetail,
+  useSummary,
+  useSubmitDecision,
+  useCaseBrief,
+};

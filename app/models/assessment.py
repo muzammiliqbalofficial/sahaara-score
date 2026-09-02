@@ -105,6 +105,12 @@ class Assessment(Base):
         comment="Full fraud-shield report: flags, evidence, recommendation.",
     )
 
+    # Case brief — bilingual synthesis cached on demand.
+    case_brief: Mapped[dict | None] = mapped_column(
+        JSONB, nullable=True,
+        comment="Bilingual case brief (English executive + Urdu applicant explanation).",
+    )
+
     # Timestamps ─────────────────────────────────────────────────────────────
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

@@ -20,6 +20,7 @@ from app.schemas.assessment import (
     AnomalyReportSchema,
     AssessmentRead,
     AssessmentWithExplanations,
+    CaseBriefResponse,
     FeatureContribution,
     PolicyRecommendationSchema,
 )
@@ -40,4 +41,5 @@ __all__ = [
     "AnomalyFlagSchema",
     "AnomalyReportSchema",
     "PolicyRecommendationSchema",
+    "CaseBriefResponse",
 ]

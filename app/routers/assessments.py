@@ -11,7 +11,8 @@ from app.database import get_db
 from app.models.assessment import Assessment
 from app.repositories.applicant_repo import ApplicantRepository
 from app.repositories.assessment_repo import AssessmentRepository
-from app.schemas.assessment import AssessmentRead, AssessmentWithExplanations
+from app.schemas.assessment import AssessmentRead, AssessmentWithExplanations, CaseBriefResponse
+from app.services.case_brief_service import generate_case_brief
 from app.services.scoring_service import score_applicant
 
 router = APIRouter(prefix="/assessments", tags=["assessments"])
@@ -144,3 +145,58 @@ def get_assessment(
         top_flags=assessment.top_flags,
         anomaly_report=assessment.anomaly_report,
     )
+
+
+@router.post(
+    "/{assessment_id}/generate-case-brief",
+    response_model=CaseBriefResponse,
+)
+def generate_case_brief_endpoint(
+    assessment_id: uuid.UUID,
+    db: Session = Depends(get_db),
+):
+    """
+    Generate (or return cached) bilingual case brief for an assessment.
+
+    On first call the service synthesises English executive + Urdu
+    applicant explanations (using Qwen when available, deterministic
+    template otherwise).  The result is cached on the assessment row so
+    subsequent calls are instant.
+    """
+    repo = AssessmentRepository(db)
+    assessment = repo.get_by_id(assessment_id)
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found")
+
+    # Return cached brief if already generated.
+    if assessment.case_brief:
+        return CaseBriefResponse(**assessment.case_brief)
+
+    # Build context from the assessment row.
+    assessment_data = {
+        "score": assessment.score,
+        "band": assessment.band,
+        "confidence_level": assessment.confidence_level,
+        "is_rule_based": assessment.is_rule_based,
+        "signal_categories_count": assessment.signal_categories_count,
+        "non_null_feature_count": assessment.non_null_feature_count,
+        "feature_contributions": assessment.feature_contributions,
+        "anomaly_report": assessment.anomaly_report,
+    }
+
+    applicant_data = None
+    if assessment.applicant:
+        applicant_data = {
+            "city": assessment.applicant.city,
+            "applicant_type": assessment.applicant.applicant_type,
+            "identity_reference": assessment.applicant.identity_reference,
+        }
+
+    brief = generate_case_brief(assessment_data, applicant_data)
+
+    # Persist for future requests.
+    assessment.case_brief = brief
+    db.commit()
+    db.refresh(assessment)
+
+    return CaseBriefResponse(**brief)

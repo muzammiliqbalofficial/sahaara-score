@@ -19,10 +19,10 @@
 
 @layer components {
   .card {
-    @apply rounded border border-gray-200 bg-white p-5;
+    @apply rounded-lg border border-gray-200 bg-white p-5 shadow-sm;
   }
   .btn {
-    @apply inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50;
+    @apply inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50;
   }
   .btn-primary {
     @apply btn bg-gray-900 text-white hover:bg-gray-700 focus:ring-gray-900;
@@ -37,9 +37,69 @@
     @apply btn bg-red-700 text-white hover:bg-red-800 focus:ring-red-700;
   }
   .input {
-    @apply rounded border border-gray-300 px-2.5 py-1.5 text-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500;
+    @apply rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
   }
   .select {
     @apply input appearance-none bg-white pr-8;
+  }
+
+  /* Glassmorphism navigation header */
+  .glass-nav {
+    @apply border-b border-white/20 backdrop-blur-xl;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Risk badges */
+  .risk-badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold;
+  }
+  .risk-badge-clean {
+    @apply risk-badge bg-green-50 text-green-800 ring-1 ring-green-200;
+  }
+  .risk-badge-low_risk {
+    @apply risk-badge bg-lime-50 text-lime-800 ring-1 ring-lime-200;
+  }
+  .risk-badge-moderate_flag {
+    @apply risk-badge bg-amber-50 text-amber-800 ring-1 ring-amber-200;
+  }
+  .risk-badge-high_suspicion {
+    @apply risk-badge bg-orange-50 text-orange-800 ring-1 ring-orange-200;
+  }
+  .risk-badge-critical_mismatch {
+    @apply risk-badge bg-red-50 text-red-800 ring-1 ring-red-200;
+  }
+
+  /* Severity badges */
+  .sev-badge-critical {
+    @apply inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-bold bg-red-100 text-red-800 ring-1 ring-red-300;
+  }
+  .sev-badge-warning {
+    @apply inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 ring-1 ring-amber-300;
+  }
+  .sev-badge-info {
+    @apply inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 ring-1 ring-blue-300;
+  }
+
+  /* Score gauge */
+  .score-ring {
+    @apply relative flex items-center justify-center;
+  }
+
+  /* Metric card */
+  .metric-card {
+    @apply rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md;
+  }
+
+  /* Urdu text styling */
+  .urdu-text {
+    direction: rtl;
+    font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Nafees", serif;
+    line-height: 2.2;
+  }
+
+  /* Gradient background for intake portal */
+  .intake-gradient {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #f5f3ff 70%, #ede9fe 100%);
   }
 }
