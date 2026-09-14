@@ -8,9 +8,9 @@ IncomeSignal.
 
 Offline safety: when DASHSCOPE_API_KEY is empty — or the API call fails for
 any reason (quota, network, bad scan) — the service falls back to
-deterministic mock extraction seeded by the file's own bytes.  The same
+deterministic mock extraction seeded by the file's own bytes. The same
 file always parses to the same values, so demos and tests never depend on
-network availability.  Every result reports its ``mode`` ('qwen_vl' or
+network availability. Every result reports its ``mode`` ('qwen_vl' or
 'mock') so the caller can show provenance in the UI.
 
 Pakistani document knowledge baked in:
@@ -160,7 +160,7 @@ class DocumentParserService:
     """Multimodal document parsing backed by Alibaba Cloud Model Studio.
 
     With ``DASHSCOPE_API_KEY`` configured, each parse call sends the uploaded
-    file to Qwen-VL with a strict JSON extraction prompt.  Without a key —
+    file to Qwen-VL with a strict JSON extraction prompt. Without a key —
     or when the API call, JSON parse, or field coercion fails — the service
     falls back to deterministic mock extraction seeded by the file content.
     """
@@ -170,7 +170,7 @@ class DocumentParserService:
         "aigc/multimodal-generation/generation"
     )
 
-    MAX_FILE_BYTES = 10 * 1024 * 1024  # 10 MB
+    MAX_FILE_BYTES = 10 * 1024 * 1024 # 10 MB
     ALLOWED_CONTENT_TYPES = {
         "image/jpeg", "image/png", "image/webp", "application/pdf",
     }
@@ -314,7 +314,7 @@ class DocumentParserService:
             "parameters": {
                 "result_format": "message",
                 "temperature": 0.1,
-                "seed": 42,  # deterministic extraction across retries
+                "seed": 42, # deterministic extraction across retries
             },
         }
 
@@ -331,7 +331,7 @@ class DocumentParserService:
             response.raise_for_status()
             text = self._extract_text(response.json())
             return self._parse_json_block(text)
-        except Exception as exc:  # noqa: BLE001 — any failure falls back to mock
+        except Exception as exc: # noqa: BLE001 — any failure falls back to mock
             logger.warning(
                 "Qwen-VL extraction failed (%s: %s) — falling back to mock "
                 "extraction for this document.",

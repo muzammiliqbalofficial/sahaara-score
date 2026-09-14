@@ -8,11 +8,11 @@ Design decisions on normalising across scales:
     - Division (1, 2, 3): older universities and some boards.
 
   We store the raw ``result_value`` and its ``result_scale`` so no information
-  is lost at ingestion.  The feature engineering layer normalises everything
+  is lost at ingestion. The feature engineering layer normalises everything
   to a 0-1 range using scale-specific mappings:
     - percentage → value / 100
-    - gpa        → value / 4.0
-    - division   → {1: 0.85, 2: 0.65, 3: 0.45} (First≈A, Second≈B, Third≈C)
+    - gpa → value / 4.0
+    - division → {1: 0.85, 2: 0.65, 3: 0.45} (First≈A, Second≈B, Third≈C)
 
   This approach lets us add new scales (e.g. letter grades) later without
   migrating stored data.
@@ -59,7 +59,7 @@ class AcademicRecord(Base):
         StrEnumType(ResultScale), nullable=True,
     )
 
-    # Year of result (e.g. 2023).  Integer, not Date, because applicants
+    # Year of result (e.g. 2023). Integer, not Date, because applicants
     # typically only remember the year.
     year: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
@@ -69,7 +69,7 @@ class AcademicRecord(Base):
     )
 
     # Relationships ──────────────────────────────────────────────────────────
-    applicant: Mapped["Applicant"] = relationship(  # noqa: F821
+    applicant: Mapped["Applicant"] = relationship( # noqa: F821
         back_populates="academic_records"
     )
 

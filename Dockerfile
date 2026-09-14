@@ -1,6 +1,6 @@
 # ── Build stage ─────────────────────────────────────────────────────────────
 # Install Python dependencies into a virtualenv, then copy it to the final
-# image.  This keeps the runtime image small (no pip cache, no compilers).
+# image. This keeps the runtime image small (no pip cache, no compilers).
 
 FROM python:3.12-slim AS builder
 
@@ -39,10 +39,10 @@ RUN chown -R app:app /app
 USER app
 
 # Render and Cloud Run inject PORT automatically; local Docker runs use
-# the default.  Override via -e PORT=8080 if needed.
+# the default. Override via -e PORT=8080 if needed.
 ENV PORT=8080
 EXPOSE 8080
 
-# No --reload in production.  Uvicorn binds to 0.0.0.0 so the container
+# No --reload in production. Uvicorn binds to 0.0.0.0 so the container
 # orchestrator can reach it.
 CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

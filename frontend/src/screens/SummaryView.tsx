@@ -165,7 +165,7 @@ export default function SummaryView() {
             ))}
           </div>
           <div className="mt-6 rounded-xl bg-slate-50 p-3.5 text-xs text-slate-600 dark:bg-slate-800/50 dark:text-slate-400">
-            <span className="font-semibold text-slate-800 dark:text-slate-200">🛡️ Fraud Shield Active:</span> 30 applications automatically routed for physical field verification due to utility-income discrepancies.
+            <span className="font-semibold text-slate-800 dark:text-slate-200"> Fraud Shield Active:</span> 30 applications automatically routed for physical field verification due to utility-income discrepancies.
           </div>
         </div>
       </div>

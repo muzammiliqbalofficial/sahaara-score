@@ -2,7 +2,7 @@
 Pydantic schemas for the Assessment entity.
 
 The ``AssessmentWithExplanations`` schema is the primary response format
-for the scoring API.  It includes structured feature contributions that
+for the scoring API. It includes structured feature contributions that
 are safe to render directly in a reviewer dashboard.
 
 The anomaly schemas (``AnomalyFlagSchema``, ``AnomalyReportSchema``,
@@ -35,10 +35,10 @@ class FeatureContribution(BaseModel):
     feature: str
     label: str | None = None
     contribution: float
-    direction: str  # "positive", "negative", or "neutral"
-    explanation: str  # Plain-language sentence for the reviewer
+    direction: str # "positive", "negative", or "neutral"
+    explanation: str # Plain-language sentence for the reviewer
     raw_value: float | None = None
-    no_data: bool = False  # True when the feature had no underlying data
+    no_data: bool = False # True when the feature had no underlying data
 
 
 # ── Anomaly / fraud shield ──────────────────────────────────────────────────
@@ -47,19 +47,19 @@ class FeatureContribution(BaseModel):
 class AnomalyFlagSchema(BaseModel):
     """One fraud-shield rule firing, with its evidence."""
 
-    code: str  # e.g. "INCOME_BILL_MISMATCH"
+    code: str # e.g. "INCOME_BILL_MISMATCH"
     severity: AnomalySeverity
-    title: str  # Short headline for queue badges
-    message: str  # Reviewer-readable explanation
-    evidence: dict = {}  # The numeric facts behind the flag
+    title: str # Short headline for queue badges
+    message: str # Reviewer-readable explanation
+    evidence: dict = {} # The numeric facts behind the flag
 
 
 class PolicyRecommendationSchema(BaseModel):
     """The institutional action recommended for this applicant."""
 
     action_type: PolicyActionType
-    recommended_support: str  # e.g. "Full Merit-Need Scholarship (100% Tuition)"
-    summary_justification: str  # Two sentences, explainable to donors
+    recommended_support: str # e.g. "Full Merit-Need Scholarship (100% Tuition)"
+    summary_justification: str # Two sentences, explainable to donors
 
 
 class AnomalyReportSchema(BaseModel):
@@ -70,7 +70,7 @@ class AnomalyReportSchema(BaseModel):
     audit_required: bool = False
     flags_count: int = 0
     flags: list[AnomalyFlagSchema] = []
-    top_flags: list[str] = []  # Codes of the most severe findings, worst first
+    top_flags: list[str] = [] # Codes of the most severe findings, worst first
     recommendation: PolicyRecommendationSchema | None = None
 
 
@@ -144,4 +144,4 @@ class CaseBriefResponse(BaseModel):
     english_brief: EnglishBriefSchema
     urdu_brief: str
     recommended_award_package: AwardPackageSchema
-    mode: str = "template"  # "qwen" | "template"
+    mode: str = "template" # "qwen" | "template"

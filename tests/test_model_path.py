@@ -47,7 +47,7 @@ class TestModelArtefact:
         Run `python -m training` to produce it.
         """
         assert _model_exists(), (
-            f"Trained model not found at {MODEL_PATH}.  "
+            f"Trained model not found at {MODEL_PATH}. "
             f"Run `python -m training` to train the model first."
         )
 
@@ -75,7 +75,7 @@ class TestModelBasedPath:
         result = score_applicant(full_applicant)
 
         assert result["is_rule_based"] is False, (
-            "Full applicant should use model path, but got rule-based.  "
+            "Full applicant should use model path, but got rule-based. "
             "Either the model is missing or min_model_data_points is too high."
         )
         assert 0 <= result["score"] <= 100
@@ -103,7 +103,7 @@ class TestModelBasedPath:
         non_zero = [c for c in contributions if abs(c.get("contribution", 0)) > 0.001]
         assert len(non_zero) >= 3, (
             f"Expected genuine SHAP contributions but only {len(non_zero)} "
-            f"features have non-zero contribution.  "
+            f"features have non-zero contribution. "
             f"SHAP may not be running — model path might be falling back to rules."
         )
 
@@ -167,7 +167,7 @@ class TestZeroFeatureGate:
     A zero-feature applicant must NEVER reach the model path.
 
     This is the project's core principle: missing data must never be read
-    as ordinary data.  The model would output ~56.7 for a completely empty
+    as ordinary data. The model would output ~56.7 for a completely empty
     applicant, which is a fabricated number built on nothing.
     """
 
@@ -180,7 +180,7 @@ class TestZeroFeatureGate:
         result = score_applicant(empty_applicant)
 
         assert result["is_rule_based"] is True, (
-            "CRITICAL: zero-feature applicant reached the model path!  "
+            "CRITICAL: zero-feature applicant reached the model path! "
             "The hard gate in scoring_service must never allow this."
         )
         assert result["score"] == 25.0, (

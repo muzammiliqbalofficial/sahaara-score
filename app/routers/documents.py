@@ -2,15 +2,15 @@
 Document parsing endpoints — multimodal extraction via Alibaba Cloud Qwen-VL.
 
 Field workers photograph an applicant's paper documents (utility bills,
-marksheets, income affidavits) and upload them here.  Qwen-VL extracts the
+marksheets, income affidavits) and upload them here. Qwen-VL extracts the
 structured values that feed the scoring engine, eliminating manual data
 entry at intake.
 
 Endpoints:
-  POST /parse-utility-bill    — one bill → units, amount, provider, arrears
+  POST /parse-utility-bill — one bill → units, amount, provider, arrears
   POST /parse-academic-record — one marksheet → result, institution, year
-  POST /parse-income-slip     — one affidavit/slip → income, source, dependants
-  POST /parse-bundle          — many documents → parsed values, and when an
+  POST /parse-income-slip — one affidavit/slip → income, source, dependants
+  POST /parse-bundle — many documents → parsed values, and when an
                                 applicant_id is given, real records plus an
                                 optional fresh assessment.
 
@@ -135,7 +135,7 @@ async def parse_bundle(
     Parse several documents in one call and auto-populate applicant data.
 
     Each file is parsed independently (any file can fall back to mock mode
-    without failing the others).  When ``applicant_id`` is supplied the
+    without failing the others). When ``applicant_id`` is supplied the
     parsed values are written as real utility/academic/income records and,
     unless ``run_scoring=false``, a fresh assessment runs immediately —
     the one-shot intake path: three photographs in, one score out.
@@ -235,7 +235,7 @@ async def parse_bundle(
             or result.created_academic_records
             or result.created_income_signals
         ):
-            db.refresh(applicant)  # pick up the records just created
+            db.refresh(applicant) # pick up the records just created
             score = score_applicant(applicant)
             assessment = Assessment(
                 applicant_id=applicant_id,

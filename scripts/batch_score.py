@@ -30,8 +30,8 @@ def main():
         unscored = [a for a in all_applicants if a.id not in scored_ids]
 
         print(f"Total applicants: {len(all_applicants)}")
-        print(f"Already scored:   {len(scored_ids)}")
-        print(f"To score:         {len(unscored)}")
+        print(f"Already scored: {len(scored_ids)}")
+        print(f"To score: {len(unscored)}")
         print()
 
         for i, applicant in enumerate(unscored):
@@ -56,7 +56,7 @@ def main():
 
             if (i + 1) % 50 == 0:
                 db.flush()
-                print(f"  Scored {i + 1}/{len(unscored)}...")
+                print(f" Scored {i + 1}/{len(unscored)}...")
 
         db.commit()
         print(f"\nDone. Scored {len(unscored)} applicants.")

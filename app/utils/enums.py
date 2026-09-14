@@ -107,9 +107,9 @@ class ConfidenceLevel(str, enum.Enum):
     """
     How much trust to place in a computed score.
 
-    HIGH:   sufficient data across multiple signal categories.
+    HIGH: sufficient data across multiple signal categories.
     MEDIUM: some gaps, but core signals present.
-    LOW:    thin file — score is indicative but not definitive.
+    LOW: thin file — score is indicative but not definitive.
     """
 
     HIGH = "high"
@@ -121,8 +121,8 @@ class AnomalySeverity(str, enum.Enum):
     """
     Severity of a single fraud-shield flag.
 
-    INFO:     statistical oddity worth noting, not evidence of deception.
-    WARNING:  a real inconsistency that a reviewer should examine.
+    INFO: statistical oddity worth noting, not evidence of deception.
+    WARNING: a real inconsistency that a reviewer should examine.
     CRITICAL: a contradiction that makes the declared circumstances
               implausible without further verification.
     """
@@ -136,10 +136,10 @@ class RiskLevel(str, enum.Enum):
     """
     Overall risk classification derived from the anomaly risk score.
 
-    CLEAN:             no flags at all.
-    LOW_RISK:          minor observations only (INFO-level).
-    MODERATE_FLAG:     at least one WARNING — desk review recommended.
-    HIGH_SUSPICION:    accumulated warnings — field audit recommended.
+    CLEAN: no flags at all.
+    LOW_RISK: minor observations only (INFO-level).
+    MODERATE_FLAG: at least one WARNING — desk review recommended.
+    HIGH_SUSPICION: accumulated warnings — field audit recommended.
     CRITICAL_MISMATCH: at least one CRITICAL flag — declared data is
                        internally contradictory.
     """
@@ -156,11 +156,11 @@ class PolicyActionType(str, enum.Enum):
     The recommended institutional action for an applicant, derived from
     their anomaly risk level.
 
-    AUTO_APPROVE:        clean file — safe for streamlined disbursement.
-    STANDARD_REVIEW:     moderate flags — a reviewer examines the file.
+    AUTO_APPROVE: clean file — safe for streamlined disbursement.
+    STANDARD_REVIEW: moderate flags — a reviewer examines the file.
     FIELD_AUDIT_REQUIRED: high suspicion — physical verification before
                           any funds are released.
-    HIGH_RISK_REJECT:    multiple critical contradictions — support
+    HIGH_RISK_REJECT: multiple critical contradictions — support
                          withheld pending corrected documentation.
     """
 

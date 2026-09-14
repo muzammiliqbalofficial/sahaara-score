@@ -27,4 +27,4 @@ factory-boy>=3.3
 # Utilities
 python-dotenv>=1.0
 faker>=22.0
-httpx>=0.26  # runtime: Qwen-VL document parser calls; also used by tests
+httpx>=0.26 # runtime: Qwen-VL document parser calls; also used by tests

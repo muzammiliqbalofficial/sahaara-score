@@ -39,7 +39,7 @@ def main():
 
     model = _load_model()
     if model is None:
-        print("ERROR: No trained model found.  Run `python -m training` first.")
+        print("ERROR: No trained model found. Run `python -m training` first.")
         sys.exit(1)
 
     # Load all applicants.
@@ -94,38 +94,38 @@ def main():
     abs_diffs = np.abs(diffs)
 
     print("=" * 70)
-    print("  MODEL vs RULE-BASED COMPARISON")
+    print(" MODEL vs RULE-BASED COMPARISON")
     print("=" * 70)
 
-    print(f"\n  Population: {len(applicants)} applicants")
-    print(f"  Mean model score:  {model_scores.mean():.2f}")
-    print(f"  Mean rule score:   {rule_scores.mean():.2f}")
-    print(f"  Mean difference:   {diffs.mean():+.2f}  (model - rule)")
-    print(f"  Median |diff|:     {np.median(abs_diffs):.2f}")
-    print(f"  Max |diff|:        {abs_diffs.max():.2f}")
+    print(f"\n Population: {len(applicants)} applicants")
+    print(f" Mean model score: {model_scores.mean():.2f}")
+    print(f" Mean rule score: {rule_scores.mean():.2f}")
+    print(f" Mean difference: {diffs.mean():+.2f} (model - rule)")
+    print(f" Median |diff|: {np.median(abs_diffs):.2f}")
+    print(f" Max |diff|: {abs_diffs.max():.2f}")
 
     # Correlation.
     corr = np.corrcoef(model_scores, rule_scores)[0, 1]
-    print(f"  Pearson correlation: {corr:.4f}")
+    print(f" Pearson correlation: {corr:.4f}")
 
     if corr > 0.95:
         print(
-            "\n  VERDICT: The model nearly perfectly reproduces the rules."
-            "\n  The model is adding very little beyond the hand-weighted rules."
+            "\n VERDICT: The model nearly perfectly reproduces the rules."
+            "\n The model is adding very little beyond the hand-weighted rules."
         )
     elif corr > 0.85:
         print(
-            "\n  VERDICT: The model mostly agrees with the rules but adds"
-            "\n  some independent signal."
+            "\n VERDICT: The model mostly agrees with the rules but adds"
+            "\n some independent signal."
         )
     else:
         print(
-            "\n  VERDICT: The model diverges meaningfully from the rules."
-            "\n  This suggests the model learned patterns the rules miss."
+            "\n VERDICT: The model diverges meaningfully from the rules."
+            "\n This suggests the model learned patterns the rules miss."
         )
 
     # Per-tier breakdown.
-    print(f"\n  PER-TIER COMPARISON")
+    print(f"\n PER-TIER COMPARISON")
     print("-" * 70)
     for tier in ["thin", "medium", "full"]:
         mask = tiers == tier
@@ -137,13 +137,13 @@ def main():
         t_diff = diffs[mask]
         t_abs = abs_diffs[mask]
         t_corr = np.corrcoef(t_model, t_rule)[0, 1] if n > 2 else 0.0
-        print(f"\n  {tier.upper():8s}  (n={n})")
-        print(f"    Mean model: {t_model.mean():.2f}  Mean rule: {t_rule.mean():.2f}")
-        print(f"    Mean diff:  {t_diff.mean():+.2f}  Median |diff|: {np.median(t_abs):.2f}")
-        print(f"    Correlation: {t_corr:.4f}")
+        print(f"\n {tier.upper():8s} (n={n})")
+        print(f" Mean model: {t_model.mean():.2f} Mean rule: {t_rule.mean():.2f}")
+        print(f" Mean diff: {t_diff.mean():+.2f} Median |diff|: {np.median(t_abs):.2f}")
+        print(f" Correlation: {t_corr:.4f}")
 
     # Top-10 largest disagreements.
-    print(f"\n  TOP 10 LARGEST DISAGREEMENTS")
+    print(f"\n TOP 10 LARGEST DISAGREEMENTS")
     print("-" * 70)
     top_idx = np.argsort(abs_diffs)[-10:][::-1]
     for rank, idx in enumerate(top_idx, 1):
@@ -153,9 +153,9 @@ def main():
         r = rule_scores[idx]
         d = diffs[idx]
         direction = "model higher" if d > 0 else "rule higher"
-        print(f"    {rank:2d}.  Model={m:6.2f}  Rule={r:6.2f}  "
-              f"Diff={d:+7.2f} ({direction})  "
-              f"Tier={tier}  Features={nn}")
+        print(f" {rank:2d}. Model={m:6.2f} Rule={r:6.2f} "
+              f"Diff={d:+7.2f} ({direction}) "
+              f"Tier={tier} Features={nn}")
 
     # Band disagreement rate.
     band_disagree = 0
@@ -163,9 +163,9 @@ def main():
         if _score_to_band(m) != _score_to_band(r):
             band_disagree += 1
 
-    print(f"\n  BAND DISAGREEMENT")
+    print(f"\n BAND DISAGREEMENT")
     print("-" * 70)
-    print(f"    {band_disagree}/{len(applicants)} "
+    print(f" {band_disagree}/{len(applicants)} "
           f"({band_disagree / len(applicants):.1%}) applicants "
           f"get a different band from the two paths.")
 

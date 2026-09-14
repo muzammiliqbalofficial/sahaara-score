@@ -1,6 +1,6 @@
 /**
  * Mask a CNIC number, keeping only the leading district digits and the
- * final check digit.  E.g. "42101-1234567-8" → "42101-*******-8".
+ * final check digit. E.g. "42101-1234567-8" → "42101-*******-8".
  */
 export function maskCnic(cnic: string | null | undefined): string {
   if (!cnic) return "";

@@ -1,7 +1,7 @@
 """
 Model diagnostic — honest investigation into why the model underperforms.
 
-This script does NOT tune until the metrics look better.  It diagnoses first,
+This script does NOT tune until the metrics look better. It diagnoses first,
 reports what it finds, and makes one honest attempt at improvement.
 
 Investigations:
@@ -139,8 +139,8 @@ def mutual_information_analysis(data):
     mi_scores = mutual_info_classif(X_filled, y_bin, random_state=RANDOM_SEED)
 
     print("\n" + "=" * 70)
-    print("  1. MUTUAL INFORMATION ANALYSIS")
-    print("  Does the signal exist in the data at all?")
+    print(" 1. MUTUAL INFORMATION ANALYSIS")
+    print(" Does the signal exist in the data at all?")
     print("=" * 70)
     print()
     sorted_features = sorted(
@@ -148,19 +148,19 @@ def mutual_information_analysis(data):
     )
     for name, mi in sorted_features:
         bar = "#" * int(mi / max(mi_scores) * 30) if max(mi_scores) > 0 else ""
-        print(f"  {name:30s}  MI={mi:.4f}  {bar}")
+        print(f" {name:30s} MI={mi:.4f} {bar}")
 
     avg_mi = np.mean(mi_scores)
-    print(f"\n  Average MI: {avg_mi:.4f}")
+    print(f"\n Average MI: {avg_mi:.4f}")
     if avg_mi < 0.01:
-        print("  VERDICT: Features carry very little information about the label.")
-        print("  The signal may be too weak for any model to learn from.")
+        print(" VERDICT: Features carry very little information about the label.")
+        print(" The signal may be too weak for any model to learn from.")
     elif avg_mi < 0.05:
-        print("  VERDICT: Features carry weak but non-trivial signal.")
-        print("  With more data or better features, the model may improve.")
+        print(" VERDICT: Features carry weak but non-trivial signal.")
+        print(" With more data or better features, the model may improve.")
     else:
-        print("  VERDICT: Features carry meaningful signal.")
-        print("  The model should be able to learn if given enough data.")
+        print(" VERDICT: Features carry meaningful signal.")
+        print(" The model should be able to learn if given enough data.")
 
     return mi_scores
 
@@ -288,18 +288,18 @@ def _train_and_evaluate(data, label: str, class_weight=None, calibrate=False):
 
 def _print_result(r: dict):
     """Print a single result row."""
-    print(f"\n  {r['label']}")
-    print(f"    n={r['n']}  train={r['n_train']}  test={r['n_test']}  pos_rate={r['pos_rate']:.2%}")
-    print(f"    ROC AUC:   {r['auc']:.4f}")
-    print(f"    Accuracy:  {r['accuracy']:.4f}")
-    print(f"    Precision: {r['precision']:.4f}")
-    print(f"    Recall:    {r['recall']:.4f}")
-    print(f"    ECE:       {r['ece']:.4f}")
-    tier_auc_str = "  ".join(
+    print(f"\n {r['label']}")
+    print(f" n={r['n']} train={r['n_train']} test={r['n_test']} pos_rate={r['pos_rate']:.2%}")
+    print(f" ROC AUC: {r['auc']:.4f}")
+    print(f" Accuracy: {r['accuracy']:.4f}")
+    print(f" Precision: {r['precision']:.4f}")
+    print(f" Recall: {r['recall']:.4f}")
+    print(f" ECE: {r['ece']:.4f}")
+    tier_auc_str = " ".join(
         f"{t}={v:.4f}" if v is not None else f"{t}=N/A"
         for t, v in r["tier_auc"].items()
     )
-    print(f"    Tier AUC:  {tier_auc_str}")
+    print(f" Tier AUC: {tier_auc_str}")
 
 
 # ── Main diagnostic flow ──────────────────────────────────────────────────
@@ -307,114 +307,114 @@ def _print_result(r: dict):
 
 def main():
     print("=" * 70)
-    print("  SAHAARA SCORE — MODEL DIAGNOSTIC")
-    print("  Honest investigation into why the model underperforms.")
+    print(" SAHAARA SCORE — MODEL DIAGNOSTIC")
+    print(" Honest investigation into why the model underperforms.")
     print("=" * 70)
 
     # ── 1. Load current 500-record dataset ─────────────────────────────────
-    print("\n  Generating 500-record baseline dataset...")
+    print("\n Generating 500-record baseline dataset...")
     data_500 = _generate_dataset(500)
     pos_500 = data_500["y_binary"].sum()
-    print(f"    500 records: {pos_500} approved, {500 - pos_500} denied ({pos_500/500:.1%} positive)")
+    print(f" 500 records: {pos_500} approved, {500 - pos_500} denied ({pos_500/500:.1%} positive)")
 
     # ── 2. Mutual information analysis ─────────────────────────────────────
     mi_scores = mutual_information_analysis(data_500)
 
     # ── 3. Sample size scaling ─────────────────────────────────────────────
     print("\n" + "=" * 70)
-    print("  2. SAMPLE SIZE SCALING")
-    print("  Does performance improve with more data?")
+    print(" 2. SAMPLE SIZE SCALING")
+    print(" Does performance improve with more data?")
     print("=" * 70)
 
-    print("\n  Training on 500 records...")
+    print("\n Training on 500 records...")
     r_500, model_500 = _train_and_evaluate(data_500, "500 records (baseline)")
 
-    print("  Generating 2000 records...")
+    print(" Generating 2000 records...")
     data_2000 = _generate_dataset(2000)
     pos_2000 = data_2000["y_binary"].sum()
-    print(f"    2000 records: {pos_2000} approved ({pos_2000/2000:.1%} positive)")
-    print("  Training on 2000 records...")
+    print(f" 2000 records: {pos_2000} approved ({pos_2000/2000:.1%} positive)")
+    print(" Training on 2000 records...")
     r_2000, model_2000 = _train_and_evaluate(data_2000, "2000 records")
 
-    print("  Generating 5000 records...")
+    print(" Generating 5000 records...")
     data_5000 = _generate_dataset(5000)
     pos_5000 = data_5000["y_binary"].sum()
-    print(f"    5000 records: {pos_5000} approved ({pos_5000/5000:.1%} positive)")
-    print("  Training on 5000 records...")
+    print(f" 5000 records: {pos_5000} approved ({pos_5000/5000:.1%} positive)")
+    print(" Training on 5000 records...")
     r_5000, model_5000 = _train_and_evaluate(data_5000, "5000 records")
 
-    print("\n  Sample size scaling results:")
+    print("\n Sample size scaling results:")
     _print_result(r_500)
     _print_result(r_2000)
     _print_result(r_5000)
 
     auc_trend = [r_500["auc"], r_2000["auc"], r_5000["auc"]]
     if auc_trend[2] > auc_trend[0] + 0.05:
-        print("\n  VERDICT: ROC AUC scales with data volume.")
-        print("  The ceiling is sample size, not model design.")
-        print("  More data would help, but 500 records is too few for 8 features.")
+        print("\n VERDICT: ROC AUC scales with data volume.")
+        print(" The ceiling is sample size, not model design.")
+        print(" More data would help, but 500 records is too few for 8 features.")
     else:
-        print("\n  VERDICT: ROC AUC does NOT scale meaningfully with data volume.")
-        print("  The ceiling is likely label noise or weak features, not sample size.")
+        print("\n VERDICT: ROC AUC does NOT scale meaningfully with data volume.")
+        print(" The ceiling is likely label noise or weak features, not sample size.")
 
     # ── 4. Noise sensitivity ───────────────────────────────────────────────
     print("\n" + "=" * 70)
-    print("  3. LABEL NOISE SENSITIVITY")
-    print("  Is 8% flip + 5% contrarian too much noise?")
+    print(" 3. LABEL NOISE SENSITIVITY")
+    print(" Is 8% flip + 5% contrarian too much noise?")
     print("=" * 70)
 
-    print("\n  Training with current noise (8% flip + 5% contrarian)...")
+    print("\n Training with current noise (8% flip + 5% contrarian)...")
     r_noisy, _ = _train_and_evaluate(data_500, "Noisy (8% flip + 5% contrarian)")
 
-    print("  Generating low-noise dataset (2% flip + 1% contrarian)...")
+    print(" Generating low-noise dataset (2% flip + 1% contrarian)...")
     data_low_noise = _generate_dataset(500, noise_flip=0.02, contrarian=0.01)
-    print("  Training with low noise...")
+    print(" Training with low noise...")
     r_low_noise, _ = _train_and_evaluate(data_low_noise, "Low noise (2% flip + 1% contrarian)")
 
-    print("  Generating zero-noise dataset...")
+    print(" Generating zero-noise dataset...")
     data_no_noise = _generate_dataset(500, noise_flip=0.0, contrarian=0.0)
-    print("  Training with zero noise...")
+    print(" Training with zero noise...")
     r_no_noise, _ = _train_and_evaluate(data_no_noise, "Zero noise")
 
-    print("\n  Noise comparison:")
+    print("\n Noise comparison:")
     _print_result(r_noisy)
     _print_result(r_low_noise)
     _print_result(r_no_noise)
 
     noise_delta = r_no_noise["auc"] - r_noisy["auc"]
     if noise_delta > 0.10:
-        print(f"\n  VERDICT: Noise destroyed significant signal (delta_AUC={noise_delta:.4f}).")
-        print("  8% flip + 5% contrarian may be more than real reviewer inconsistency.")
-        print("  Consider reducing noise to 2-3% flip + 1-2% contrarian.")
+        print(f"\n VERDICT: Noise destroyed significant signal (delta_AUC={noise_delta:.4f}).")
+        print(" 8% flip + 5% contrarian may be more than real reviewer inconsistency.")
+        print(" Consider reducing noise to 2-3% flip + 1-2% contrarian.")
     elif noise_delta > 0.03:
-        print(f"\n  VERDICT: Noise has moderate impact (delta_AUC={noise_delta:.4f}).")
-        print("  Noise is a factor but not the primary cause of underperformance.")
+        print(f"\n VERDICT: Noise has moderate impact (delta_AUC={noise_delta:.4f}).")
+        print(" Noise is a factor but not the primary cause of underperformance.")
     else:
-        print(f"\n  VERDICT: Noise has minimal impact (delta_AUC={noise_delta:.4f}).")
-        print("  The problem lies elsewhere (weak features or model design).")
+        print(f"\n VERDICT: Noise has minimal impact (delta_AUC={noise_delta:.4f}).")
+        print(" The problem lies elsewhere (weak features or model design).")
 
     # ── 5. Class weighting + calibration ──────────────────────────────────
     print("\n" + "=" * 70)
-    print("  4. ONE HONEST ATTEMPT AT IMPROVEMENT")
-    print("  Class weighting + isotonic calibration")
+    print(" 4. ONE HONEST ATTEMPT AT IMPROVEMENT")
+    print(" Class weighting + isotonic calibration")
     print("=" * 70)
 
-    print("\n  Training with class weighting (balanced)...")
+    print("\n Training with class weighting (balanced)...")
     r_weighted, _ = _train_and_evaluate(data_500, "Class-weighted", class_weight="balanced")
 
-    print("  Training with class weighting + calibration...")
+    print(" Training with class weighting + calibration...")
     r_weighted_cal, _ = _train_and_evaluate(
         data_500, "Class-weighted + calibrated",
         class_weight="balanced", calibrate=True,
     )
 
-    print("  Training with calibration only (no class weight)...")
+    print(" Training with calibration only (no class weight)...")
     r_calibrated, _ = _train_and_evaluate(
         data_500, "Calibrated only",
         calibrate=True,
     )
 
-    print("\n  Before vs after:")
+    print("\n Before vs after:")
     _print_result(r_500)
     _print_result(r_weighted)
     _print_result(r_weighted_cal)
@@ -422,7 +422,7 @@ def main():
 
     # ── 6. Final verdict ──────────────────────────────────────────────────
     print("\n" + "=" * 70)
-    print("  5. FINAL VERDICT")
+    print(" 5. FINAL VERDICT")
     print("=" * 70)
 
     best_improved = max(
@@ -435,9 +435,9 @@ def main():
         key=lambda x: x[1],
     )
 
-    print(f"\n  Baseline (500 records):        AUC = {r_500['auc']:.4f}")
-    print(f"  Best improved ({best_label[0]}): AUC = {best_label[1]:.4f}")
-    print(f"  Best with more data (5000):     AUC = {r_5000['auc']:.4f}")
+    print(f"\n Baseline (500 records): AUC = {r_500['auc']:.4f}")
+    print(f" Best improved ({best_label[0]}): AUC = {best_label[1]:.4f}")
+    print(f" Best with more data (5000): AUC = {r_5000['auc']:.4f}")
 
     # Rule-based baseline comparison.
     # We can compute the rule-based AUC by scoring all test applicants with
@@ -468,7 +468,7 @@ def main():
     for applicant in all_5000:
         fs = build_feature_vector(applicant)
         score, _ = _score_rule_based(fs)
-        rule_scores.append(score / 100.0)  # normalise to 0-1
+        rule_scores.append(score / 100.0) # normalise to 0-1
         rule_labels.append(1 if applicant.reviewer_approved else 0)
 
     try:
@@ -476,19 +476,19 @@ def main():
     except ValueError:
         rule_auc = 0.0
 
-    print(f"  Rule-based baseline AUC:        AUC = {rule_auc:.4f}")
+    print(f" Rule-based baseline AUC: AUC = {rule_auc:.4f}")
 
     print()
     if best_improved > rule_auc + 0.02:
-        print("  CONCLUSION: The improved model BEATS the rule-based baseline.")
-        print("  The model path is worth deploying, but with caution.")
+        print(" CONCLUSION: The improved model BEATS the rule-based baseline.")
+        print(" The model path is worth deploying, but with caution.")
     elif r_5000["auc"] > rule_auc + 0.02:
-        print("  CONCLUSION: The model with more data BEATS the rule-based baseline,")
-        print("  but the 500-record model does not.  Scale up data collection.")
+        print(" CONCLUSION: The model with more data BEATS the rule-based baseline,")
+        print(" but the 500-record model does not. Scale up data collection.")
     else:
-        print("  CONCLUSION: The model does NOT beat the rule-based baseline.")
-        print("  We keep the rule-based path as primary and present the model as a")
-        print("  supplementary signal.  This is the honest finding.")
+        print(" CONCLUSION: The model does NOT beat the rule-based baseline.")
+        print(" We keep the rule-based path as primary and present the model as a")
+        print(" supplementary signal. This is the honest finding.")
 
     print("\n" + "=" * 70)
 

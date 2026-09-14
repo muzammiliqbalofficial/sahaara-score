@@ -3,13 +3,13 @@ Pydantic schemas for multimodal document parsing results.
 
 Design decisions:
   - Document parsing is inherently lossy: a blurry scan or handwritten
-    affidavit may hide fields from the Qwen-VL extraction.  Every field is
+    affidavit may hide fields from the Qwen-VL extraction. Every field is
     therefore nullable and the router never raises on a missing value.
   - Parsed fields map one-to-one onto the existing record Create schemas
     (UtilityRecordCreate etc.) so a parse result can be persisted directly
     without a translation layer.
   - ``mode`` records whether the live Qwen-VL call or the offline mock
-    produced the result.  The reviewer interface surfaces this so a demo
+    produced the result. The reviewer interface surfaces this so a demo
     never silently pretends the API was live.
 """
 

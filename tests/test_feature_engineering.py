@@ -257,7 +257,7 @@ class TestHouseholdBurden:
         ]
         result = household_burden(1, income, utility)
         assert result is not None
-        assert result > 0.7  # Low burden
+        assert result > 0.7 # Low burden
 
     def test_high_burden(self):
         income = [
@@ -268,7 +268,7 @@ class TestHouseholdBurden:
         ]
         result = household_burden(6, income, utility)
         assert result is not None
-        assert result < 0.5  # High burden
+        assert result < 0.5 # High burden
 
     def test_no_data(self):
         assert household_burden(None, [], []) is None

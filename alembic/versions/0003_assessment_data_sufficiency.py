@@ -2,7 +2,7 @@
 Add signal_categories_count and non_null_feature_count to assessments.
 
 These make data sufficiency a first-class part of every assessment row,
-not just side-channel metadata.  A reviewer must be able to see at a
+not just side-channel metadata. A reviewer must be able to see at a
 glance how much evidence sits behind a score.
 
 Revision ID: 0003_assessment_data_sufficiency

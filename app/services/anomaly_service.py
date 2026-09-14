@@ -5,36 +5,36 @@ recommendation for institutional reviewers.
 
 Design philosophy
 ─────────────────
-1.  Every rule compares data the applicant (or their documents) supplied
-    against *other* data in the same file.  No rule relies on external
+1. Every rule compares data the applicant (or their documents) supplied
+    against *other* data in the same file. No rule relies on external
     registries — the shield catches internal contradictions.
-2.  Flags are evidence, not verdicts.  Each flag carries its severity, a
+2. Flags are evidence, not verdicts. Each flag carries its severity, a
     reviewer-readable message, and the numeric evidence behind it, so a
     human can audit every automated recommendation.
-3.  Missing data never triggers a flag.  "We don't know" is not "this is
+3. Missing data never triggers a flag. "We don't know" is not "this is
     suspicious" — the same principle as the nullable-first feature layer.
-4.  The policy recommendation is deterministic given the flags and score:
+4. The policy recommendation is deterministic given the flags and score:
     the same file always yields the same recommendation.
 
 Rules (2026):
-  INCOME_BILL_MISMATCH      utility spend > 60% of income (WARNING)
+  INCOME_BILL_MISMATCH utility spend > 60% of income (WARNING)
                             or exceeding income entirely (CRITICAL)
-  LUXURY_TARIFF_INDICATOR   ~400+ kWh consumption while claiming
+  LUXURY_TARIFF_INDICATOR ~400+ kWh consumption while claiming
                             extreme-low income (WARNING)
-  CHRONIC_DEFAULT_BURDEN    accumulated arrears > 2x monthly bill (WARNING;
+  CHRONIC_DEFAULT_BURDEN accumulated arrears > 2x monthly bill (WARNING;
                             1–2x is an INFO observation)
-  INCOME_EVIDENCE_GAP       extreme-need or daily-wager income claim with
+  INCOME_EVIDENCE_GAP extreme-need or daily-wager income claim with
                             no documented/verified proof (WARNING)
   ACADEMIC_MERIT_DISCORDANCE best result > 85% conflicting with another
                             submitted result, or a scale-impossible value
                             (WARNING)
-  DEPENDENCY_INFLATION      9+ dependants with no multi-earner evidence
+  DEPENDENCY_INFLATION 9+ dependants with no multi-earner evidence
                             (WARNING)
 
 Because UtilityRecord does not store meter units or printed arrears (the
 document parser extracts them but they are not persisted yet), those
 quantities are *estimated* from billed amounts: units ≈ electricity bill /
-AVG_TARIFF_PER_KWH, arrears ≈ accumulated unpaid portions of bills.  Both
+AVG_TARIFF_PER_KWH, arrears ≈ accumulated unpaid portions of bills. Both
 estimates are conservative and recorded in the flag evidence.
 """
 
@@ -69,9 +69,9 @@ AVG_TARIFF_PER_KWH = 29.0
 LUXURY_UNITS_THRESHOLD = 400
 
 # Utility-spend-to-income ratios.
-INCOME_BILL_CRITICAL_RATIO = 1.0   # bill exceeds income entirely
-INCOME_BILL_WARNING_RATIO = 0.60   # spec threshold: 60% of income
-INCOME_BILL_INFO_RATIO = 0.45      # notable burden, worth recording
+INCOME_BILL_CRITICAL_RATIO = 1.0 # bill exceeds income entirely
+INCOME_BILL_WARNING_RATIO = 0.60 # spec threshold: 60% of income
+INCOME_BILL_INFO_RATIO = 0.45 # notable burden, worth recording
 
 # Accumulated arrears as a multiple of the average monthly utility bill.
 ARREARS_WARNING_MULTIPLE = 2.0
@@ -111,8 +111,8 @@ class AnomalyFlag:
     code: str
     severity: AnomalySeverity
     title: str
-    message: str  # Reviewer-readable explanation
-    evidence: dict = field(default_factory=dict)  # The numbers behind the flag
+    message: str # Reviewer-readable explanation
+    evidence: dict = field(default_factory=dict) # The numbers behind the flag
 
 
 @dataclass
@@ -121,7 +121,7 @@ class PolicyRecommendation:
 
     action_type: PolicyActionType
     recommended_support: str
-    summary_justification: str  # Two sentences, explainable to donors
+    summary_justification: str # Two sentences, explainable to donors
 
 
 @dataclass
@@ -513,7 +513,7 @@ def _rule_academic_discordance(academic_records: list) -> list[AnomalyFlag]:
             )]
 
     # (b) Merit trajectory discordance — best result > 85% while another
-    #     submitted result collapses by 30+ points.
+    # submitted result collapses by 30+ points.
     normalised = [
         (r, _normalise_result(r.result_value, r.result_scale))
         for r in academic_records
@@ -573,7 +573,7 @@ def _rule_dependency_inflation(applicant, income_signals: list) -> list[AnomalyF
         and s.declared_monthly_amount > 0
     )
     if earners > 1:
-        return []  # Multiple income sources corroborate a multi-family home.
+        return [] # Multiple income sources corroborate a multi-family home.
 
     return [AnomalyFlag(
         code="DEPENDENCY_INFLATION",
@@ -648,7 +648,7 @@ def _build_recommendation(
     if risk_level in (RiskLevel.CLEAN, RiskLevel.LOW_RISK):
         # A clean file on thin data is still not auto-approvable — the
         # anomaly shield says nothing is contradictory, not that enough
-        # evidence exists.  LOW confidence caps at standard review.
+        # evidence exists. LOW confidence caps at standard review.
         action = (
             PolicyActionType.STANDARD_REVIEW
             if confidence == ConfidenceLevel.LOW
@@ -658,7 +658,7 @@ def _build_recommendation(
         action = PolicyActionType.STANDARD_REVIEW
     elif risk_level == RiskLevel.HIGH_SUSPICION:
         action = PolicyActionType.FIELD_AUDIT_REQUIRED
-    else:  # CRITICAL_MISMATCH
+    else: # CRITICAL_MISMATCH
         action = (
             PolicyActionType.HIGH_RISK_REJECT
             if len(criticals) >= 2 or risk_score >= 90
@@ -699,7 +699,7 @@ def _build_recommendation(
             f"Support is withheld pending corrected documentation and "
             f"physical verification."
         )
-    else:  # FIELD_AUDIT_REQUIRED
+    else: # FIELD_AUDIT_REQUIRED
         if criticals:
             justification = (
                 f"The declared data contains a critical contradiction "
@@ -740,7 +740,7 @@ def detect_anomalies(
 
     ``score`` and ``confidence`` are optional context from the scoring run:
     the recommendation's support package is tiered by the Sahaara Score and
-    never auto-approves a thin file.  Both default to unknown, in which case
+    never auto-approves a thin file. Both default to unknown, in which case
     the recommendation leans conservative.
 
     Returns an :class:`AnomalyReport` with flags, a 0-100 risk score, an
@@ -761,7 +761,7 @@ def detect_anomalies(
     ):
         try:
             flags.extend(rule())
-        except Exception as exc:  # noqa: BLE001 — one bad rule never blocks scoring
+        except Exception as exc: # noqa: BLE001 — one bad rule never blocks scoring
             logger.warning(
                 "Anomaly rule failed (%s: %s) — continuing with remaining "
                 "rules.", type(exc).__name__, exc,

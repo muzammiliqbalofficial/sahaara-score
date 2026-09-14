@@ -231,7 +231,7 @@ def explain_rule_based(
     # First, add contributions for features that ARE present.
     for contrib in raw_contributions:
         name = contrib["feature"]
-        norm_value = contrib["raw_value"]  # Normalised 0-1 value.
+        norm_value = contrib["raw_value"] # Normalised 0-1 value.
         desc = FEATURE_DESCRIPTIONS.get(name, {})
         label = desc.get("label", name)
 

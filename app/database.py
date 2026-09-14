@@ -3,7 +3,7 @@ SQLAlchemy engine, session factory, and base declarative class.
 
 Design decision: we use ``sessionmaker`` with ``expire_on_commit=False`` so that
 objects remain accessible after a commit without triggering lazy-load queries
-against a potentially closed session.  This is important for the scoring path
+against a potentially closed session. This is important for the scoring path
 where we create an Assessment, commit it, and then immediately serialise it.
 
 The engine is created lazily via ``get_engine()`` so that importing this module

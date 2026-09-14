@@ -2,7 +2,7 @@
 
 **Alternative credit scoring for financially invisible Pakistanis.**
 
-Most Pakistanis have no formal banking record, which locks them out of scholarships, micro-grants, and financial aid. Sahaara Score assesses eligibility using real-world signals that households already generate — utility bills, academic records, and income declarations — instead of bank statements.
+Most Pakistanis have no formal banking record, which locks them out of scholarships, micro-grants, and financial aid. Sahaara Score assesses eligibility using real-world signals that households already generate - utility bills, academic records, and income declarations - instead of bank statements.
 
 Every score is **explainable**, because the output will be used by human reviewers awarding limited funds.
 
@@ -12,28 +12,28 @@ Every score is **explainable**, because the output will be used by human reviewe
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                      FastAPI App                          │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │  Routers (API endpoints)                            │  │
-│  │  /api/v1/applicants/*   /api/v1/assessments/*       │  │
-│  └────────────────────┬────────────────────────────────┘  │
-│                       │                                    │
-│  ┌────────────────────▼────────────────────────────────┐  │
-│  │  Services (business logic)                          │  │
-│  │  scoring_service.py   feature_engineering.py        │  │
-│  │  explainability.py                                   │  │
-│  └────────────────────┬────────────────────────────────┘  │
-│                       │                                    │
-│  ┌────────────────────▼────────────────────────────────┐  │
-│  │  Repositories (data access)                         │  │
-│  │  applicant_repo.py    assessment_repo.py             │  │
-│  └────────────────────┬────────────────────────────────┘  │
-│                       │                                    │
-│  ┌────────────────────▼────────────────────────────────┐  │
-│  │  Models (SQLAlchemy ORM)    Schemas (Pydantic)      │  │
-│  └────────────────────┬────────────────────────────────┘  │
-│                       │                                    │
-│                  PostgreSQL                                │
+│ FastAPI App │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │  Routers (API endpoints) │  │
+│ │  /api/v1/applicants/* /api/v1/assessments/* │  │
+│ └────────────────────┬────────────────────────────────┘ │
+│ │                                    │
+│ ┌────────────────────▼────────────────────────────────┐ │
+│ │  Services (business logic) │  │
+│ │  scoring_service.py feature_engineering.py │  │
+│ │  explainability.py │  │
+│ └────────────────────┬────────────────────────────────┘ │
+│ │                                    │
+│ ┌────────────────────▼────────────────────────────────┐ │
+│ │  Repositories (data access) │  │
+│ │  applicant_repo.py assessment_repo.py │  │
+│ └────────────────────┬────────────────────────────────┘ │
+│ │                                    │
+│ ┌────────────────────▼────────────────────────────────┐ │
+│ │  Models (SQLAlchemy ORM) Schemas (Pydantic) │  │
+│ └────────────────────┬────────────────────────────────┘ │
+│ │                                    │
+│ PostgreSQL │
 └──────────────────────────────────────────────────────────┘
 ```
 
@@ -42,69 +42,69 @@ Every score is **explainable**, because the output will be used by human reviewe
 ```
 sahaara-score/
 ├── app/
-│   ├── main.py                    # FastAPI application entry point
-│   ├── config.py                  # Pydantic settings (env-driven)
-│   ├── database.py                # SQLAlchemy engine + session
-│   ├── models/                    # SQLAlchemy ORM models
-│   │   ├── applicant.py
-│   │   ├── utility_record.py
-│   │   ├── academic_record.py
-│   │   ├── income_signal.py
-│   │   ├── assessment.py
-│   │   └── reviewer_decision.py
-│   ├── schemas/                   # Pydantic request/response validation
-│   │   ├── applicant.py
-│   │   ├── records.py
-│   │   ├── assessment.py
-│   │   └── review.py              # Reviewer dashboard schemas
-│   ├── repositories/              # Data access layer
-│   │   ├── applicant_repo.py
-│   │   └── assessment_repo.py
-│   ├── services/                  # Business logic layer
-│   │   ├── feature_engineering.py # Raw data → numerical features
-│   │   ├── scoring_service.py     # Features → 0-100 score + band
-│   │   └── explainability.py      # Score → plain-language explanations
-│   ├── routers/                   # API endpoint definitions
-│   │   ├── applicants.py
-│   │   ├── assessments.py
-│   │   └── review.py              # Reviewer dashboard endpoints
-│   └── utils/
-│       └── enums.py               # Domain enumerations
-├── frontend/                      # React reviewer interface
-│   ├── src/
-│   │   ├── api/                   # Types, fetch client, TanStack Query hooks
-│   │   ├── components/            # Layout, ConfidenceBadge
-│   │   ├── screens/               # ApplicantList, ApplicantDetail, SummaryView
-│   │   ├── App.tsx                # Router configuration
-│   │   └── main.tsx               # Entry point (React + QueryClient)
-│   ├── index.html
-│   ├── tailwind.config.js
-│   ├── vite.config.ts
-│   ├── vercel.json                # SPA routing for Vercel deployment
-│   └── package.json
-├── alembic/                       # Database migrations
-├── training/                      # Model training pipeline
-│   ├── __init__.py
-│   ├── dataset.py                 # Dataset builder (reuses feature engineering)
-│   ├── train.py                   # LightGBM + isotonic calibration training
-│   └── __main__.py                # Entry point: python -m training
+│ ├── main.py # FastAPI application entry point
+│ ├── config.py # Pydantic settings (env-driven)
+│ ├── database.py # SQLAlchemy engine + session
+│ ├── models/ # SQLAlchemy ORM models
+│ │   ├── applicant.py
+│ │   ├── utility_record.py
+│ │   ├── academic_record.py
+│ │   ├── income_signal.py
+│ │   ├── assessment.py
+│ │   └── reviewer_decision.py
+│ ├── schemas/ # Pydantic request/response validation
+│ │   ├── applicant.py
+│ │   ├── records.py
+│ │   ├── assessment.py
+│ │   └── review.py # Reviewer dashboard schemas
+│ ├── repositories/ # Data access layer
+│ │   ├── applicant_repo.py
+│ │   └── assessment_repo.py
+│ ├── services/ # Business logic layer
+│ │   ├── feature_engineering.py # Raw data → numerical features
+│ │   ├── scoring_service.py # Features → 0-100 score + band
+│ │   └── explainability.py # Score → plain-language explanations
+│ ├── routers/ # API endpoint definitions
+│ │   ├── applicants.py
+│ │   ├── assessments.py
+│ │   └── review.py # Reviewer dashboard endpoints
+│ └── utils/
+│ └── enums.py # Domain enumerations
+├── frontend/ # React reviewer interface
+│ ├── src/
+│ │   ├── api/ # Types, fetch client, TanStack Query hooks
+│ │   ├── components/ # Layout, ConfidenceBadge
+│ │   ├── screens/ # ApplicantList, ApplicantDetail, SummaryView
+│ │   ├── App.tsx # Router configuration
+│ │   └── main.tsx # Entry point (React + QueryClient)
+│ ├── index.html
+│ ├── tailwind.config.js
+│ ├── vite.config.ts
+│ ├── vercel.json # SPA routing for Vercel deployment
+│ └── package.json
+├── alembic/ # Database migrations
+├── training/ # Model training pipeline
+│ ├── __init__.py
+│ ├── dataset.py # Dataset builder (reuses feature engineering)
+│ ├── train.py # LightGBM + isotonic calibration training
+│ └── __main__.py # Entry point: python -m training
 ├── scripts/
-│   ├── seed.py                    # Synthetic data generator + label generation
-│   ├── batch_score.py             # Batch-score all unscored applicants
-│   ├── compare.py                 # Model vs rule-based comparison
-│   └── diagnose.py                # Model diagnostic (MI, noise, scaling)
-├── tests/                         # pytest test suite
-│   ├── conftest.py
-│   ├── test_feature_engineering.py
-│   ├── test_scoring.py
-│   ├── test_models.py
-│   └── test_model_path.py         # Dual-path integration tests
-├── models_cache/                  # Trained model artifacts
-├── Dockerfile                     # Multi-stage production build (Render)
+│ ├── seed.py # Synthetic data generator + label generation
+│ ├── batch_score.py # Batch-score all unscored applicants
+│ ├── compare.py # Model vs rule-based comparison
+│ └── diagnose.py # Model diagnostic (MI, noise, scaling)
+├── tests/ # pytest test suite
+│ ├── conftest.py
+│ ├── test_feature_engineering.py
+│ ├── test_scoring.py
+│ ├── test_models.py
+│ └── test_model_path.py # Dual-path integration tests
+├── models_cache/ # Trained model artifacts
+├── Dockerfile # Multi-stage production build (Render)
 ├── .dockerignore
-├── docker-compose.yml             # Optional local Postgres alternative
-├── requirements-prod.txt          # Production-only dependencies
-├── requirements.txt               # Full dependencies (incl. testing)
+├── docker-compose.yml # Optional local Postgres alternative
+├── requirements-prod.txt # Production-only dependencies
+├── requirements.txt # Full dependencies (incl. testing)
 ├── pyproject.toml
 └── .env.example
 ```
@@ -132,7 +132,7 @@ sahaara-score/
 - A student may have utility bills in their parent's name but no income record.
 - A freelancer may have academic transcripts but no utility bills.
 
-The scoring engine handles missing data explicitly — `None` is structurally different from a low value.
+The scoring engine handles missing data explicitly - `None` is structurally different from a low value.
 
 ---
 
@@ -192,7 +192,7 @@ Weights are hand-tuned to reflect domain priorities:
 | `income_confidence` | 0.08 | Data credibility |
 | `total_income_normalised` | 0.07 | Absolute income level |
 
-**Critical design choice:** when a feature is `None`, its weight is *excluded from the denominator*. This means an applicant with only utility data isn't penalised for missing academic or income data — the available features are scored at full weight.
+**Critical design choice:** when a feature is `None`, its weight is *excluded from the denominator*. This means an applicant with only utility data isn't penalised for missing academic or income data - the available features are scored at full weight.
 
 ### Score Bands
 
@@ -208,7 +208,7 @@ Weights are hand-tuned to reflect domain priorities:
 |-------|----------|
 | High | 3 signal categories present AND 6+ months of utility data |
 | Medium | 2 categories OR 3+ months of data |
-| Low | 1 category and <3 months — score is indicative but not definitive |
+| Low | 1 category and <3 months - score is indicative but not definitive |
 
 ### Explainability
 
@@ -230,17 +230,17 @@ The `is_rule_based` flag on every assessment makes it **explicit** whether the M
 
 #### Hard Gate: Zero-Feature Protection
 
-An applicant below the minimum feature threshold (default: 6 of 8 features non-null) **never reaches the model**. A hard gate in `_score_model_based()` raises `RuntimeError` if a thin-file applicant somehow bypasses the routing logic. The model would output ~56.7 for an empty applicant — a fabricated number built on nothing. Missing data must never be read as ordinary data.
+An applicant below the minimum feature threshold (default: 6 of 8 features non-null) **never reaches the model**. A hard gate in `_score_model_based()` raises `RuntimeError` if a thin-file applicant somehow bypasses the routing logic. The model would output ~56.7 for an empty applicant - a fabricated number built on nothing. Missing data must never be read as ordinary data.
 
 #### Data Sufficiency in Every Response
 
 A score of 60 built on eight signals is not the same claim as a score of 60 built on one signal. Every assessment now returns:
 
-- `signal_categories_count` — how many distinct signal categories (utility, academic, income) backed this score
-- `non_null_feature_count` — how many of the 8 engineered features had actual values
-- `confidence_level` — derived from category count and months of data
-- `categories_present` — which categories were available
-- `months_of_data` — how many months of utility history exist
+- `signal_categories_count` - how many distinct signal categories (utility, academic, income) backed this score
+- `non_null_feature_count` - how many of the 8 engineered features had actual values
+- `confidence_level` - derived from category count and months of data
+- `categories_present` - which categories were available
+- `months_of_data` - how many months of utility history exist
 
 These are first-class database columns, not side-channel metadata.
 
@@ -266,11 +266,11 @@ We trained a LightGBM regressor on 500 synthetic applicants with independently g
 
 ### Diagnostic Investigations
 
-**1. Mutual Information Analysis — Is the signal in the data?**
+**1. Mutual Information Analysis - Is the signal in the data?**
 
-Average MI = 0.0118. Features carry weak but non-trivial signal. The strongest features are `longest_on_time_streak` (MI=0.027), `payment_consistency` (MI=0.025), and `household_burden` (MI=0.020). Two features (`mean_days_late`, `academic_signal`) have MI=0.000 — they carry no measurable information about the label.
+Average MI = 0.0118. Features carry weak but non-trivial signal. The strongest features are `longest_on_time_streak` (MI=0.027), `payment_consistency` (MI=0.025), and `household_burden` (MI=0.020). Two features (`mean_days_late`, `academic_signal`) have MI=0.000 - they carry no measurable information about the label.
 
-**2. Sample Size Scaling — Is 500 records too few?**
+**2. Sample Size Scaling - Is 500 records too few?**
 
 | Records | ROC AUC |
 |---------|--------|
@@ -280,7 +280,7 @@ Average MI = 0.0118. Features carry weak but non-trivial signal. The strongest f
 
 AUC does NOT scale with data volume. The ceiling is not sample size.
 
-**3. Label Noise — Did we over-noise the labels?**
+**3. Label Noise - Did we over-noise the labels?**
 
 | Noise level | ROC AUC |
 |-------------|--------|
@@ -288,7 +288,7 @@ AUC does NOT scale with data volume. The ceiling is not sample size.
 | 2% flip + 1% contrarian (low) | 0.6701 |
 | 0% (zero noise) | 0.6715 |
 
-Noise has moderate impact (delta AUC = 0.073). Even with zero noise, the model only reaches 0.67 — the signal itself is weak.
+Noise has moderate impact (delta AUC = 0.073). Even with zero noise, the model only reaches 0.67 - the signal itself is weak.
 
 **4. Class Weighting + Calibration**
 
@@ -312,9 +312,9 @@ The model marginally outperforms the rule-based baseline, but both are barely ab
 
 ### Honest Conclusion
 
-**The model does not meaningfully beat the rule-based baseline.** Both paths produce weak results because the underlying features carry very little mutual information with the approval labels. The synthetic data is intentionally noisy and realistic — which means the signal-to-noise ratio is low.
+**The model does not meaningfully beat the rule-based baseline.** Both paths produce weak results because the underlying features carry very little mutual information with the approval labels. The synthetic data is intentionally noisy and realistic - which means the signal-to-noise ratio is low.
 
-The rule-based path remains the primary scoring mechanism. The model path serves as a supplementary signal. This is not a failure — it is the expected outcome when building a scoring system before real-world outcome data exists. The model will improve once trained on actual reviewer decisions rather than synthetic labels.
+The rule-based path remains the primary scoring mechanism. The model path serves as a supplementary signal. This is not a failure - it is the expected outcome when building a scoring system before real-world outcome data exists. The model will improve once trained on actual reviewer decisions rather than synthetic labels.
 
 The `scripts/diagnose.py` script is included so anyone can reproduce these findings.
 
@@ -335,15 +335,15 @@ cd saahara-score
 
 # 2. Create a virtual environment
 python -m venv .venv
-.venv\Scripts\activate        # Windows
-# source .venv/bin/activate   # macOS / Linux
+.venv\Scripts\activate # Windows
+# source .venv/bin/activate # macOS / Linux
 
 # 3. Install dependencies
 pip install -r requirements.txt
 
 # 4. Create .env from the example and paste your Neon connection string.
-#    Change the URL prefix from postgresql:// to postgresql+psycopg://
-#    and make sure sslmode=require is present.
+# Change the URL prefix from postgresql:// to postgresql+psycopg://
+# and make sure sslmode=require is present.
 cp .env.example .env
 # Edit .env → set DATABASE_URL to your Neon URL
 
@@ -368,7 +368,7 @@ npm run dev
 
 > **Connection string note:** Neon provides URLs starting with `postgresql://`.
 > SQLAlchemy needs the driver prefix, so change it to `postgresql+psycopg://`.
-> Always keep `?sslmode=require` — Neon rejects non-SSL connections.
+> Always keep `?sslmode=require` - Neon rejects non-SSL connections.
 
 ### API Documentation
 
@@ -416,17 +416,17 @@ A React-based web interface lets reviewers interact with scored applicants direc
 
 ### Screens
 
-**Applicant List** — Sortable, filterable table of all scored applicants. Columns: score (always paired with confidence badge), band, ID/type, city, review status, created date. Filters for band, confidence level, and review status. Free-text search by city, district, or CNIC.
+**Applicant List** - Sortable, filterable table of all scored applicants. Columns: score (always paired with confidence badge), band, ID/type, city, review status, created date. Filters for band, confidence level, and review status. Free-text search by city, district, or CNIC.
 
-**Applicant Detail** — The core screen. Shows score and band prominently alongside the confidence level and which signal categories were present. Below that, the top contributing factors rendered as a bar chart with direction, magnitude, and plain-language explanation. States explicitly which scoring path produced the result (model or rule-based). Shows the underlying records: utility history, academic records, income signals. A reviewer can trace any number back to its evidence.
+**Applicant Detail** - The core screen. Shows score and band prominently alongside the confidence level and which signal categories were present. Below that, the top contributing factors rendered as a bar chart with direction, magnitude, and plain-language explanation. States explicitly which scoring path produced the result (model or rule-based). Shows the underlying records: utility history, academic records, income signals. A reviewer can trace any number back to its evidence.
 
-**Decision Panel** — Embedded in the detail screen. Lets the reviewer record an approval or denial with a written rationale, saved to the `reviewer_decisions` table. Shows any previous decisions on the applicant.
+**Decision Panel** - Embedded in the detail screen. Lets the reviewer record an approval or denial with a written rationale, saved to the `reviewer_decisions` table. Shows any previous decisions on the applicant.
 
-**Summary View** — Score distribution in 10-point bins, band breakdown, confidence breakdown, data completeness, and decision counts.
+**Summary View** - Score distribution in 10-point bins, band breakdown, confidence breakdown, data completeness, and decision counts.
 
 ### Design Principles
 
-- **Never display a score without its confidence attached.** Every score in the interface — list table, detail header, summary — is always shown alongside its confidence badge.
+- **Never display a score without its confidence attached.** Every score in the interface - list table, detail header, summary - is always shown alongside its confidence badge.
 - **Colour carries meaning, not decoration.** Confidence uses green (high), amber (medium), red (low). Bands use the same semantic palette. No colour is used purely for aesthetics.
 - **Calm and legible.** No gauge widgets, no gratuitous animation, no dashboard theatrics. This is a tool for consequential decisions about people with limited means.
 
@@ -475,7 +475,7 @@ In the Pakistani context, a complete data profile is the exception, not the norm
 
 ### Why two scoring paths?
 
-An ML model trained on historical data can capture non-linear interactions between features — but only when there are enough features to work with. For thin-file applicants, a transparent weighted-average is more honest than a model guessing at patterns it can't see. The rule-based path is never hidden: every assessment carries `is_rule_based: true/false`.
+An ML model trained on historical data can capture non-linear interactions between features - but only when there are enough features to work with. For thin-file applicants, a transparent weighted-average is more honest than a model guessing at patterns it can't see. The rule-based path is never hidden: every assessment carries `is_rule_based: true/false`.
 
 ### Why store raw academic values?
 
@@ -489,7 +489,7 @@ A score of 45 from a thin file (1 category, 2 months of data) means something ve
 
 ## Deployment
 
-### Backend — Render
+### Backend - Render
 
 #### Prerequisites
 
@@ -497,15 +497,15 @@ A score of 45 from a thin file (1 category, 2 months of data) means something ve
 - The repository pushed to GitHub
 - A Neon database connection string
 
-Render builds the Dockerfile on its own infrastructure from the GitHub repo — no local Docker or container registry needed.
+Render builds the Dockerfile on its own infrastructure from the GitHub repo - no local Docker or container registry needed.
 
-#### Step 1 — Connect the repository
+#### Step 1 - Connect the repository
 
 1. Log in to the Render dashboard.
 2. Click **New → Web Service**.
 3. Connect your GitHub account and select the **Saahara Score** repository.
 
-#### Step 2 — Configure the service
+#### Step 2 - Configure the service
 
 | Setting | Value |
 |---------|-------|
@@ -514,9 +514,9 @@ Render builds the Dockerfile on its own infrastructure from the GitHub repo — 
 | **Runtime** | **Docker** |
 | **Dockerfile path** | `./Dockerfile` (auto-detected at repo root) |
 | **Instance type** | Free |
-| **Start Command** | *(leave blank — uses the Dockerfile CMD)* |
+| **Start Command** | *(leave blank - uses the Dockerfile CMD)* |
 
-#### Step 3 — Environment variables
+#### Step 3 - Environment variables
 
 Add these in the **Environment** tab. Mark `DATABASE_URL` and `APP_SECRET_KEY` as **Secret** so they are masked in the dashboard and logs.
 
@@ -529,9 +529,9 @@ Add these in the **Environment** tab. Mark `DATABASE_URL` and `APP_SECRET_KEY` a
 | `APP_DEBUG` | `false` | No |
 | `SQL_ECHO` | `false` | No |
 
-> **Initial CORS placeholder:** `CORS_ORIGINS` starts with `localhost` — you will update it to the real Vercel domain in Step 6 below.
+> **Initial CORS placeholder:** `CORS_ORIGINS` starts with `localhost` - you will update it to the real Vercel domain in Step 6 below.
 
-Click **Create Web Service**. Render builds the image from the Dockerfile and deploys it. Once live, the service URL is shown at the top of the dashboard (e.g. `https://sahaara-api.onrender.com`). **Save this URL — you need it for the frontend.**
+Click **Create Web Service**. Render builds the image from the Dockerfile and deploys it. Once live, the service URL is shown at the top of the dashboard (e.g. `https://sahaara-api.onrender.com`). **Save this URL - you need it for the frontend.**
 
 #### Updating environment variables
 
@@ -541,24 +541,24 @@ Go to the service → **Environment** tab → edit the value → **Save Changes*
 
 | Variable | Required | Default | Notes |
 |----------|----------|---------|-------|
-| `DATABASE_URL` | **Yes** | — | Neon URL with `postgresql+psycopg://` prefix and `sslmode=require` |
+| `DATABASE_URL` | **Yes** | - | Neon URL with `postgresql+psycopg://` prefix and `sslmode=require` |
 | `APP_SECRET_KEY` | No | `change-me-in-production` | Generate a random 64-char hex string |
 | `CORS_ORIGINS` | No | localhost origins | JSON array: `["https://app.vercel.app"]` |
 | `APP_ENV` | No | `development` | Set to `production` |
 | `APP_DEBUG` | No | `true` | Set to `false` (disables /docs and /redoc) |
-| `SQL_ECHO` | No | `false` | Log all SQL — dev only |
+| `SQL_ECHO` | No | `false` | Log all SQL - dev only |
 | `PORT` | No | *(auto-injected by Render)* | Do not set manually |
 | `MODEL_VERSION` | No | `0.1.0` | Stamped on assessments |
 
-#### Free tier — sleep and cold start
+#### Free tier - sleep and cold start
 
 The Render free tier spins down the service after 15 minutes of no traffic. The next request pays a cold start of roughly **50 seconds** while the container is rebuilt from cache and started. The `/health` endpoint wakes both layers (Render + Neon idle suspension) because it opens a real database connection.
 
 **Options ranked by cost:**
 
-1. **Free**: accept ~50 s cold starts (fine for scheduled demos — just ping `/health` a minute before)
+1. **Free**: accept ~50 s cold starts (fine for scheduled demos - just ping `/health` a minute before)
 2. **~$0/month**: Use a free cron service (cron-job.org, GitHub Actions schedule) to `GET /health` every 14 minutes, keeping Render awake
-3. **~$7/month**: Upgrade to the **Starter** plan (always-on, 512 MB RAM) — eliminates Render cold starts
+3. **~$7/month**: Upgrade to the **Starter** plan (always-on, 512 MB RAM) - eliminates Render cold starts
 4. **~$19/month**: Neon paid plan "Keep alive" eliminates database cold starts independently
 
 #### Health check
@@ -596,7 +596,7 @@ The existing Dockerfile works with Render without changes:
 
 ---
 
-### Frontend — Vercel
+### Frontend - Vercel
 
 #### Prerequisites
 
@@ -614,19 +614,19 @@ The existing Dockerfile works with Render without changes:
 |----------|-------|
 | `VITE_API_BASE_URL` | `https://sahaara-api.onrender.com/api/v1` |
 
-5. Deploy. Vercel builds the static site and serves it from its CDN. **Save the Vercel URL** (e.g. `https://sahaara.vercel.app`) — you need it for Step 6.
+5. Deploy. Vercel builds the static site and serves it from its CDN. **Save the Vercel URL** (e.g. `https://sahaara.vercel.app`) - you need it for Step 6.
 
 #### SPA routing
 
 The `frontend/vercel.json` file rewrites all paths to `/index.html` so direct links to applicant detail pages work without a 404.
 
-#### Vercel config — platform-agnostic
+#### Vercel config - platform-agnostic
 
 The `vercel.json` is platform-agnostic. It contains only an SPA rewrite rule. No origin, no CORS, no backend URL baked in. The `VITE_API_BASE_URL` env var is the only thing that ties the frontend to a specific backend, and it is set in the Vercel dashboard, not in code.
 
 #### Local development (unchanged)
 
-The Vite dev proxy (`frontend/vite.config.ts`) forwards `/api/*` to `localhost:8000`. The `VITE_API_BASE_URL` variable is only needed for production builds — when unset, the client falls back to the relative `/api/v1` path.
+The Vite dev proxy (`frontend/vite.config.ts`) forwards `/api/*` to `localhost:8000`. The `VITE_API_BASE_URL` variable is only needed for production builds - when unset, the client falls back to the relative `/api/v1` path.
 
 ---
 
@@ -635,18 +635,18 @@ The Vite dev proxy (`frontend/vite.config.ts`) forwards `/api/*` to `localhost:8
 The frontend needs the backend URL, and the backend needs the frontend origin for CORS. Here is the exact sequence:
 
 ```
- 1. Push repo to GitHub                         ─┐
- 2. Create Render Web Service (Docker runtime)   │  (no URL dependencies)
- 3. Add env vars (CORS_ORIGINS = localhost)      ─┘
+ 1. Push repo to GitHub ─┐
+ 2. Create Render Web Service (Docker runtime) │  (no URL dependencies)
+ 3. Add env vars (CORS_ORIGINS = localhost) ─┘
     ┌──────────────────────────────────────────────────┐
-    │  BACKEND URL is now known:                        │
-    │  https://sahaara-api.onrender.com                 │
+    │ BACKEND URL is now known: │
+    │ https://sahaara-api.onrender.com │
     └──────────────────────────────────────────────────┘
  4. Deploy frontend to Vercel with VITE_API_BASE_URL
     pointing at the backend URL from step 3
     ┌──────────────────────────────────────────────────┐
-    │  FRONTEND URL is now known:                       │
-    │  https://sahaara.vercel.app                       │
+    │ FRONTEND URL is now known: │
+    │ https://sahaara.vercel.app │
     └──────────────────────────────────────────────────┘
  5. Seed and score the production database
  6. UPDATE CORS: go back to Render → Environment tab,
@@ -666,16 +666,16 @@ Both Render (free tier sleep) and Neon (idle connection suspension) suspend afte
 | Layer | Cold cost | Mitigation |
 |-------|-----------|------------|
 | Render free tier | ~50 s | Cron ping every 14 min, or upgrade to Starter plan ($7/month) |
-| Neon database | 1–5 s | Neon paid plan "Keep alive" ($19/month), or a cron pinging `/health` every 4 min |
+| Neon database | 1-5 s | Neon paid plan "Keep alive" ($19/month), or a cron pinging `/health` every 4 min |
 | Combined worst case | ~55 s | Both mitigations together |
 
 The `/health` endpoint wakes both layers because it opens a real database connection. Set it as the Render health check path (Settings → Health Check Path → `/health`) so Render itself pings it.
 
 **Options ranked by cost:**
 
-1. **Free**: accept ~55 s cold starts (fine for scheduled demos — ping `/health` a minute before presenting)
+1. **Free**: accept ~55 s cold starts (fine for scheduled demos - ping `/health` a minute before presenting)
 2. **~$0/month**: Use a free cron service (cron-job.org, GitHub Actions schedule) to `GET /health` every 14 minutes, keeping both Render and Neon warm
-3. **~$7/month**: Render Starter plan (always-on, 512 MB RAM) — eliminates Render cold starts
+3. **~$7/month**: Render Starter plan (always-on, 512 MB RAM) - eliminates Render cold starts
 4. **~$26/month**: Render Starter + Neon paid keep-alive eliminates all cold starts
 
 ---
@@ -687,20 +687,20 @@ Run these after Step 7. If any fail, fix before demo day.
 ```bash
 BACKEND=https://sahaara-api.onrender.com
 
-# 1. Health — database reachable
+# 1. Health - database reachable
 curl $BACKEND/health
 # Expect: {"status":"healthy","database":"healthy",...}
 
-# 2. Applicant list — returns data
+# 2. Applicant list - returns data
 curl "$BACKEND/api/v1/review/applicants?limit=5" | python -c "import sys,json; d=json.load(sys.stdin); print(f'{len(d)} applicants returned')"
 # Expect: "5 applicants returned"
 
-# 3. Applicant detail — explanations present
+# 3. Applicant detail - explanations present
 FIRST_ID=$(curl -s "$BACKEND/api/v1/review/applicants?limit=1" | python -c "import sys,json; print(json.load(sys.stdin)[0]['id'])")
 curl "$BACKEND/api/v1/review/applicants/$FIRST_ID" | python -c "import sys,json; d=json.load(sys.stdin); fc=d['latest_assessment']['feature_contributions']; print(f'{len(fc)} contributions, model_version={d[\"latest_assessment\"][\"model_version\"]}')"
 # Expect: "8 contributions, model_version=..." (not empty)
 
-# 4. Decision write — persists
+# 4. Decision write - persists
 curl -s -X POST "$BACKEND/api/v1/review/assessments/$(curl -s "$BACKEND/api/v1/review/applicants?limit=1" | python -c "import sys,json; print(json.load(sys.stdin)[0]['latest_assessment']['id'])")/decisions" \
   -H "Content-Type: application/json" \
   -d '{"outcome":"approved","reviewer":"deploy-test","rationale":"Deployment verification"}'
@@ -717,10 +717,10 @@ Open the Vercel URL in a browser and verify:
 
 ## Next Steps (Future Phases)
 
-1. **Collect real outcome data** — The model is currently trained on synthetic labels. The single most impactful improvement is retraining on actual reviewer decisions as they accumulate through the interface.
-2. **Data collection integration** — Mobile-first forms for field workers to capture utility bills and income signals.
-3. **Appeals workflow** — Structured process for applicants to submit additional evidence and request re-scoring.
-4. **Fairness auditing** — Statistical checks for bias across city, district, gender, and applicant type.
+1. **Collect real outcome data** - The model is currently trained on synthetic labels. The single most impactful improvement is retraining on actual reviewer decisions as they accumulate through the interface.
+2. **Data collection integration** - Mobile-first forms for field workers to capture utility bills and income signals.
+3. **Appeals workflow** - Structured process for applicants to submit additional evidence and request re-scoring.
+4. **Fairness auditing** - Statistical checks for bias across city, district, gender, and applicant type.
 
 ---
 

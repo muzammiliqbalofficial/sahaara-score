@@ -1,7 +1,7 @@
 """
 Reviewer dashboard endpoints — scored applicant list, detail, decisions, summary.
 
-These endpoints power the reviewer interface.  They join applicant data with
+These endpoints power the reviewer interface. They join applicant data with
 assessment data and reviewer decisions so the frontend can render a complete
 picture without multiple round-trips.
 """

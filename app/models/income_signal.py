@@ -65,7 +65,7 @@ class IncomeSignal(Base):
     )
 
     # Relationships ──────────────────────────────────────────────────────────
-    applicant: Mapped["Applicant"] = relationship(  # noqa: F821
+    applicant: Mapped["Applicant"] = relationship( # noqa: F821
         back_populates="income_signals"
     )
 

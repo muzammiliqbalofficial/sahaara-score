@@ -2,28 +2,28 @@
 * text=auto
 
 # Force LF for files that break with CRLF.
-*.sh   text eol=lf
-*.py   text
-*.ts   text
-*.tsx  text
-*.css  text
+*.sh text eol=lf
+*.py text
+*.ts text
+*.tsx text
+*.css text
 *.html text
 *.json text
 *.toml text
-*.yml  text
+*.yml text
 *.yaml text
-*.ini  text
-*.cfg  text
+*.ini text
+*.cfg text
 
 # Mark binary types so Git does not mangle them.
-*.png  binary
-*.jpg  binary
+*.png binary
+*.jpg binary
 *.jpeg binary
-*.gif  binary
-*.ico  binary
+*.gif binary
+*.ico binary
 *.joblib binary
-*.pkl  binary
+*.pkl binary
 *.ckpt binary
-*.h5   binary
-*.pt   binary
+*.h5 binary
+*.pt binary
 *.onnx binary

@@ -3,10 +3,10 @@ Scoring service — produces a 0-100 score, a band, and a confidence level.
 
 Two scoring paths:
   1. Model-based (LightGBM + SHAP): used when enough features are present.
-  2. Rule-based fallback: used for thin-file applicants.  Fully transparent
+  2. Rule-based fallback: used for thin-file applicants. Fully transparent
      weights, clearly flagged in the output.
 
-The ``score_applicant`` method is the single entry point.  It decides which
+The ``score_applicant`` method is the single entry point. It decides which
 path to use, computes the score, and delegates to the explainability service
 for feature-level explanations.
 """
@@ -46,7 +46,7 @@ FEATURE_NAMES = [
 ]
 
 # ── Rule-based weights ─────────────────────────────────────────────────────
-# These are hand-tuned to reflect domain priorities.  Payment reliability is
+# These are hand-tuned to reflect domain priorities. Payment reliability is
 # the single strongest signal in the absence of a credit history.
 
 RULE_WEIGHTS: dict[str, float] = {
@@ -142,7 +142,7 @@ def _load_calibrator():
     Lazy-load the isotonic calibrator fitted during training.
 
     The calibrator maps raw LightGBM regression outputs to calibrated
-    probabilities.  Returns None if no calibrator file exists (old
+    probabilities. Returns None if no calibrator file exists (old
     pre-v1.1 models).
     """
     if "calibrator" in _CALIBRATOR_CACHE:
@@ -177,9 +177,9 @@ def _compute_confidence(feature_set: FeatureSet) -> ConfidenceLevel:
     """
     Derive a confidence level from data sufficiency.
 
-    HIGH:   3 categories AND 6+ months of utility data
+    HIGH: 3 categories AND 6+ months of utility data
     MEDIUM: 2 categories OR 3+ months of data
-    LOW:    everything else
+    LOW: everything else
     """
     n_cats = len(feature_set.categories_present)
     months = feature_set.months_of_utility_data
@@ -198,7 +198,7 @@ def _score_model_based(feature_set: FeatureSet) -> tuple[float, list[dict]]:
     Returns (score_0_100, feature_contributions).
 
     HARD GATE: If non_null_count is below the minimum data threshold this
-    function refuses to run.  Missing data must never be read as ordinary
+    function refuses to run. Missing data must never be read as ordinary
     data by the model — that is the core principle of this project.
     """
     # ── Hard gate ───────────────────────────────────────────────────────
@@ -303,7 +303,7 @@ def score_applicant(applicant) -> dict:
         "anomaly_risk_level": RiskLevel,
         "anomaly_audit_required": bool,
         "anomaly_flags_count": int,
-        "anomaly_report": dict,   # Full fraud-shield report (JSONB-ready)
+        "anomaly_report": dict, # Full fraud-shield report (JSONB-ready)
     }
     """
     feature_set = build_feature_vector(applicant)

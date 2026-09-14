@@ -52,7 +52,7 @@ class ReviewerDecision(Base):
     )
 
     # Relationships ──────────────────────────────────────────────────────────
-    assessment: Mapped["Assessment"] = relationship(  # noqa: F821
+    assessment: Mapped["Assessment"] = relationship( # noqa: F821
         back_populates="reviewer_decisions"
     )
 

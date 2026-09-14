@@ -2,7 +2,7 @@
 Delete every assessment and re-score all applicants from scratch.
 
 Use after a scoring-engine change (new features, new model, new anomaly
-rules) so existing assessments carry the new output.  Reviewer decisions
+rules) so existing assessments carry the new output. Reviewer decisions
 are cascade-deleted with their assessments — run this only when losing
 the decision history is acceptable.
 
@@ -64,17 +64,17 @@ def main():
 
             if (i + 1) % 50 == 0:
                 db.flush()
-                print(f"  Scored {i + 1}/{len(applicants)}...")
+                print(f" Scored {i + 1}/{len(applicants)}...")
 
         db.commit()
 
         print(f"\nDone. Re-scored {len(applicants)} applicants.")
         print("\nAnomaly risk-level distribution:")
         for level, count in sorted(risk_levels.items()):
-            print(f"  {level:20s} {count:4d}")
+            print(f" {level:20s} {count:4d}")
         print("\nRecommended actions:")
         for action, count in sorted(actions.items()):
-            print(f"  {action:24s} {count:4d}")
+            print(f" {action:24s} {count:4d}")
 
     except Exception as e:
         db.rollback()
