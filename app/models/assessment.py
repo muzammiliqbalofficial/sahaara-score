@@ -10,7 +10,7 @@ Design decisions:
   - ``confidence_level`` is persisted alongside the score so the reviewer UI
     never needs to recompute it.
   - The ``is_rule_based`` flag makes it explicit whether the ML model or the
-    rule-based fallback produced this score. No hidden fallbacks.
+    rule-based fallback produced this score.  No hidden fallbacks.
 """
 
 import uuid
@@ -50,9 +50,9 @@ class Assessment(Base):
     # Explainability ─────────────────────────────────────────────────────────
     # JSONB structure:
     # [
-    # {"feature": "payment_reliability", "contribution": 12.5,
-    # "direction": "positive", "explanation": "..."},
-    # ...
+    #   {"feature": "payment_reliability", "contribution": 12.5,
+    #    "direction": "positive", "explanation": "..."},
+    #   ...
     # ]
     feature_contributions: Mapped[dict | None] = mapped_column(
         JSONB, nullable=True
@@ -71,7 +71,7 @@ class Assessment(Base):
 
     # Data sufficiency — first-class fields, not side metadata.
     # A score of 60 built on eight signals is not the same claim as a score
-    # of 60 built on one signal. These columns make that explicit at the
+    # of 60 built on one signal.  These columns make that explicit at the
     # database level so reviewers and dashboards can filter / sort on them.
     signal_categories_count: Mapped[int] = mapped_column(
         Integer, nullable=False, default=0,
@@ -118,10 +118,10 @@ class Assessment(Base):
     )
 
     # Relationships ──────────────────────────────────────────────────────────
-    applicant: Mapped["Applicant"] = relationship( # noqa: F821
+    applicant: Mapped["Applicant"] = relationship(  # noqa: F821
         back_populates="assessments"
     )
-    reviewer_decisions: Mapped[list["ReviewerDecision"]] = relationship( # noqa: F821
+    reviewer_decisions: Mapped[list["ReviewerDecision"]] = relationship(  # noqa: F821
         back_populates="assessment",
         cascade="all, delete-orphan",
         lazy="selectin",

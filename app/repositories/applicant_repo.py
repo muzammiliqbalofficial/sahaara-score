@@ -1,7 +1,7 @@
 """
 Repository for Applicant and related records.
 
-Keeps SQLAlchemy queries out of the service layer. Every method accepts and
+Keeps SQLAlchemy queries out of the service layer.  Every method accepts and
 returns ORM objects — Pydantic conversion happens in the service/router layer.
 """
 

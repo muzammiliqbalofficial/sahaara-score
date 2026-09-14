@@ -148,7 +148,7 @@ class SummaryStats(BaseModel):
     scored_applicants: int = 0
     mean_score: float | None = None
     median_score: float | None = None
-    score_distribution: list[dict] = [] # [{bin: "0-10", count: 5}, ...]
+    score_distribution: list[dict] = []  # [{bin: "0-10", count: 5}, ...]
     band_breakdown: list[BandCount] = []
     confidence_breakdown: list[ConfidenceCount] = []
     completeness_breakdown: list[CompletenessCount] = []

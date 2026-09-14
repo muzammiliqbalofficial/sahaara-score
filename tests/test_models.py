@@ -53,11 +53,11 @@ class TestApplicantCreate:
 
     def test_invalid_household_size(self):
         with pytest.raises(Exception):
-            ApplicantCreate(household_size=50) # Exceeds max=30
+            ApplicantCreate(household_size=50)  # Exceeds max=30
 
     def test_invalid_dependants(self):
         with pytest.raises(Exception):
-            ApplicantCreate(dependants=-1) # Below min=0
+            ApplicantCreate(dependants=-1)  # Below min=0
 
 
 class TestApplicantRead:

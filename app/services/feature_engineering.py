@@ -3,13 +3,13 @@ Feature engineering — transforms raw applicant records into numerical features
 
 Design philosophy
 ─────────────────
-1. Every function returns ``None`` when data is absent, NEVER a default like
-    zero. This lets the scoring layer distinguish "no data" from "bad signal".
-2. Features are normalised to a 0-1 range where possible so that the ML model
+1.  Every function returns ``None`` when data is absent, NEVER a default like
+    zero.  This lets the scoring layer distinguish "no data" from "bad signal".
+2.  Features are normalised to a 0-1 range where possible so that the ML model
     and the rule-based path interpret them identically.
-3. The ``build_feature_vector`` function returns a ``FeatureSet`` dataclass
+3.  The ``build_feature_vector`` function returns a ``FeatureSet`` dataclass
     containing both the feature dict and metadata about which signal categories
-    were present. This metadata drives the data-sufficiency confidence level.
+    were present.  This metadata drives the data-sufficiency confidence level.
 """
 
 from __future__ import annotations
@@ -144,9 +144,9 @@ def billed_amount_cv(utility_records: list) -> float | None:
 
 # Mapping from division codes to normalised scores.
 _DIVISION_MAP: dict[float, float] = {
-    1.0: 0.85, # First Division ≈ A
-    2.0: 0.65, # Second Division ≈ B
-    3.0: 0.45, # Third Division ≈ C
+    1.0: 0.85,   # First Division ≈ A
+    2.0: 0.65,   # Second Division ≈ B
+    3.0: 0.45,   # Third Division ≈ C
 }
 
 # Qualification level weights (higher degrees get slightly more weight).
@@ -201,7 +201,7 @@ def academic_signal(academic_records: list, current_year: int = 2026) -> float |
             years_ago = max(0, current_year - rec.year)
             recency_weight = max(0.7, 1.0 - 0.05 * years_ago)
         else:
-            recency_weight = 0.75 # Unknown year → slight penalty
+            recency_weight = 0.75  # Unknown year → slight penalty
 
         weighted_score = normalised * qual_weight * recency_weight
         scored.append(weighted_score)
@@ -420,7 +420,7 @@ def build_feature_vector(applicant) -> FeatureSet:
         features["total_income_normalised"] = min(
             math.log10(total_inc) / 5.3, 1.0
         )
-        raw_values["total_income_normalised"] = total_inc # Raw PKR amount.
+        raw_values["total_income_normalised"] = total_inc  # Raw PKR amount.
     else:
         features["total_income_normalised"] = None
         raw_values["total_income_normalised"] = None

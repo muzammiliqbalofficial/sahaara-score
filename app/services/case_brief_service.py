@@ -18,9 +18,9 @@ Qwen integration
 ────────────────
 When ``DASHSCOPE_API_KEY`` is configured the service sends a structured
 context block to Alibaba Cloud DashScope (OpenAI-compatible chat endpoint)
-and lets Qwen-Max synthesise natural prose. Without a key — or when the
+and lets Qwen-Max synthesise natural prose.  Without a key — or when the
 API call fails — the service falls back to deterministic template
-generation seeded by the same assessment data. Every result reports its
+generation seeded by the same assessment data.  Every result reports its
 ``mode`` ('qwen' or 'template') so the caller can show provenance.
 
 The deterministic fallback is intentionally detailed: it reads feature
@@ -95,7 +95,7 @@ def generate_case_brief(
             result = _call_qwen(ctx, api_key)
             result["mode"] = "qwen"
             return result
-        except Exception as exc: # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
             logger.warning(
                 "Qwen case-brief generation failed (%s: %s) — falling back "
                 "to deterministic template.",
@@ -289,7 +289,7 @@ def _build_template_brief(ctx: dict[str, Any]) -> dict[str, Any]:
     Build a complete bilingual brief from templates and the assessment data.
 
     Every sentence is constructed from actual numbers in the file — no
-    generic filler. The result is deterministic for the same input.
+    generic filler.  The result is deterministic for the same input.
     """
     score = ctx["score"]
     band = ctx["band"]
@@ -583,7 +583,7 @@ def _build_award_package(
             "Support package determined post-audit",
         ]
         schedule = "Disbursement within 30 days of audit clearance"
-    else: # high_risk_reject
+    else:  # high_risk_reject
         tier = "Suspended — Documentation Required"
         conditions = [
             "Applicant must resubmit corrected documentation",

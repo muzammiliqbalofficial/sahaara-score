@@ -153,17 +153,17 @@ interface Preset {
 const PRESETS: Preset[] = [
   {
     label: "Destitute High-Achieving Student",
-    emoji: "",
+    emoji: "🎓",
     inputs: { income: 15000, electricityUnits: 120, dependants: 4, academicPct: 92, arrearsPkr: 0 },
   },
   {
     label: "Electricity vs Income Fraud",
-    emoji: "",
+    emoji: "⚡",
     inputs: { income: 18000, electricityUnits: 700, dependants: 3, academicPct: 65, arrearsPkr: 25000 },
   },
   {
     label: "Informal Freelancer / Daily Wager",
-    emoji: "",
+    emoji: "🛠️",
     inputs: { income: 30000, electricityUnits: 200, dependants: 5, academicPct: 55, arrearsPkr: 3000 },
   },
 ];

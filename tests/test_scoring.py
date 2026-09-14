@@ -198,7 +198,7 @@ class TestIncomeNormalisation:
         applicant.income_signals.append(MockIncomeSignal(
             applicant_id=applicant.id,
             source_type="wage",
-            declared_monthly_amount=1, # PKR 1 — implausibly low
+            declared_monthly_amount=1,  # PKR 1 — implausibly low
             evidence_type="self_declared",
             confidence_flag=False,
         ))
@@ -301,7 +301,7 @@ class TestAbsentFeaturesNoData:
         absent = [e for e in explanations if e["no_data"]]
 
         assert len(present) == 3
-        assert len(absent) == 5 # 8 total features - 3 present
+        assert len(absent) == 5  # 8 total features - 3 present
         for e in absent:
             assert e["contribution"] == 0.0
             assert e["raw_value"] is None

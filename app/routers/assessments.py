@@ -30,7 +30,7 @@ def run_assessment(
     """
     Run the Sahaara Score assessment for an applicant.
 
-    This is the primary scoring endpoint. It:
+    This is the primary scoring endpoint.  It:
       1. Loads the applicant with all related records.
       2. Computes features from raw data.
       3. Routes to model-based or rule-based scoring.
@@ -160,7 +160,7 @@ def generate_case_brief_endpoint(
 
     On first call the service synthesises English executive + Urdu
     applicant explanations (using Qwen when available, deterministic
-    template otherwise). The result is cached on the assessment row so
+    template otherwise).  The result is cached on the assessment row so
     subsequent calls are instant.
     """
     repo = AssessmentRepository(db)

@@ -1,7 +1,7 @@
 """
 Dataset builder — pulls applicants from the database and runs them through
 the existing feature engineering layer so training and inference use
-*identical* feature code. No duplicated feature logic.
+*identical* feature code.  No duplicated feature logic.
 
 Missing values are preserved as NaN — LightGBM handles them natively, and
 imputation would destroy the "missing = informative" signal that is central
@@ -45,11 +45,11 @@ def load_dataset() -> dict:
     Returns
     -------
     dict with keys:
-        X : np.ndarray — (n_samples, n_features) matrix, NaN for missing
-        y : np.ndarray — continuous approval_score (0-1)
-        y_binary : np.ndarray — reviewer_approved (0/1)
+        X : np.ndarray          — (n_samples, n_features) matrix, NaN for missing
+        y : np.ndarray          — continuous approval_score (0-1)
+        y_binary : np.ndarray   — reviewer_approved (0/1)
         feature_names : list[str]
-        tiers : np.ndarray — "thin" / "medium" / "full" per sample
+        tiers : np.ndarray      — "thin" / "medium" / "full" per sample
         applicant_ids : np.ndarray
     """
     SessionLocal = _get_session_factory()
@@ -71,7 +71,7 @@ def load_dataset() -> dict:
 
     if not applicants:
         raise RuntimeError(
-            "No labelled applicants found. Run `python -m scripts.seed` first."
+            "No labelled applicants found.  Run `python -m scripts.seed` first."
         )
 
     logger.info("Loaded %d labelled applicants from database.", len(applicants))
@@ -115,7 +115,7 @@ def stratified_split(
 ) -> dict:
     """
     Stratified train/test split that preserves the distribution of data
-    completeness tiers. Thin-file applicants appear in both sets.
+    completeness tiers.  Thin-file applicants appear in both sets.
     """
     from sklearn.model_selection import train_test_split
 

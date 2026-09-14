@@ -5,7 +5,7 @@ Revises:
 Create Date: 2026-01-01 00:00:00.000000
 
 Design decision: enum columns are stored as VARCHAR (not Postgres native
-enum types). This avoids psycopg3's enum-name-vs-value mismatch and makes
+enum types).  This avoids psycopg3's enum-name-vs-value mismatch and makes
 the schema portable across Postgres hosting providers (Neon, RDS, local).
 The Python-side StrEnumType TypeDecorator handles validation and conversion.
 """

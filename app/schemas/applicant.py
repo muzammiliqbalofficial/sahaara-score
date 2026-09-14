@@ -2,7 +2,7 @@
 Pydantic schemas for the Applicant entity.
 
 Design decision: ``ApplicantCreate`` makes every field optional except
-``applicant_type`` (which we need to route scoring logic). This reflects
+``applicant_type`` (which we need to route scoring logic).  This reflects
 the reality that a field worker may only have partial information at first
 intake, and the rest gets filled in over time.
 """

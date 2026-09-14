@@ -48,7 +48,7 @@ def client() -> TestClient:
 
     def _fake_db():
         db = MagicMock()
-        db.get.return_value = None # applicant lookups find nothing
+        db.get.return_value = None  # applicant lookups find nothing
         yield db
 
     def _mock_parser() -> DocumentParserService:

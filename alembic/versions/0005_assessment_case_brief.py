@@ -2,7 +2,7 @@
 Add case_brief JSONB column to assessments for caching bilingual briefs.
 
 The case brief service generates English executive briefs and Urdu
-applicant explanations on demand. Caching the result on the assessment
+applicant explanations on demand.  Caching the result on the assessment
 row means repeated requests (reviewer reloads, donor export) are instant
 — no Qwen API round-trip needed.
 

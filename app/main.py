@@ -24,7 +24,7 @@ app = FastAPI(
     title="Sahaara Score",
     description=(
         "Alternative credit scoring platform for financially invisible "
-        "Pakistanis. Assesses eligibility using utility bills, academic "
+        "Pakistanis.  Assesses eligibility using utility bills, academic "
         "records, and income signals instead of bank statements."
     ),
     version=settings.model_version,

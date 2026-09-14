@@ -1,7 +1,7 @@
 """
 Anomaly & fraud shield engine tests.
 
-All tests run against mock applicants (no database, no network). Rule
+All tests run against mock applicants (no database, no network).  Rule
 behaviour, the risk-score ladder, policy recommendations, and the
 score_applicant integration are covered end-to-end.
 """
@@ -205,7 +205,7 @@ class TestLuxuryTariff:
         )
 
     def test_over_400_units_with_low_income_flagged(self):
-        electricity = 13000 # ~448 kWh at the blended tariff
+        electricity = 13000  # ~448 kWh at the blended tariff
         applicant = self._applicant(24000, electricity)
         report = detect(applicant)
         assert "LUXURY_TARIFF_INDICATOR" in codes(report)
@@ -217,11 +217,11 @@ class TestLuxuryTariff:
         assert report.risk_level is RiskLevel.MODERATE_FLAG
 
     def test_consumption_below_threshold_not_flagged(self):
-        report = detect(self._applicant(24000, 10000)) # ~345 kWh
+        report = detect(self._applicant(24000, 10000))  # ~345 kWh
         assert "LUXURY_TARIFF_INDICATOR" not in codes(report)
 
     def test_high_income_not_extreme_need(self):
-        report = detect(self._applicant(50000, 15000)) # ~517 kWh, but not poor
+        report = detect(self._applicant(50000, 15000))  # ~517 kWh, but not poor
         assert "LUXURY_TARIFF_INDICATOR" not in codes(report)
 
     def test_gas_bills_never_trigger_luxury(self):
@@ -248,9 +248,9 @@ class TestChronicDefault:
     def test_arrears_over_2x_bill_is_warning(self):
         bills = [
             bill(5000, month=MONTHS[0]),
-            bill(5000, month=MONTHS[1], paid=0), # unpaid
-            bill(5000, month=MONTHS[2], paid=0), # unpaid
-            bill(5000, month=date(2026, 4, 1), paid=0), # unpaid
+            bill(5000, month=MONTHS[1], paid=0),   # unpaid
+            bill(5000, month=MONTHS[2], paid=0),   # unpaid
+            bill(5000, month=date(2026, 4, 1), paid=0),  # unpaid
         ]
         report = detect(self._applicant(bills))
         assert "CHRONIC_DEFAULT_BURDEN" in codes(report)
@@ -274,7 +274,7 @@ class TestChronicDefault:
 
     def test_partial_payments_count_toward_arrears(self):
         bills = [
-            bill(6000, month=MONTHS[0], paid=1000), # 5000 outstanding
+            bill(6000, month=MONTHS[0], paid=1000),  # 5000 outstanding
             bill(6000, month=MONTHS[1], paid=1000),
             bill(6000, month=MONTHS[2], paid=1000),
         ]
@@ -430,7 +430,7 @@ class TestRiskScoreLadder:
         applicant = MockApplicant(
             dependants=2,
             income_signals=[income(20000)],
-            utility_records=[bill(9500, month=m) for m in MONTHS], # 47.5% → INFO
+            utility_records=[bill(9500, month=m) for m in MONTHS],  # 47.5% → INFO
         )
         report = detect(applicant)
         assert all(f.severity is AnomalySeverity.INFO for f in report.flags)

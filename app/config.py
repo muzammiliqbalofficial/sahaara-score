@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     app_secret_key: str = "change-me-in-production"
 
     # ── CORS ────────────────────────────────────────────────────────────────
-    # Comma-separated origins allowed to call the API. In production this
+    # Comma-separated origins allowed to call the API.  In production this
     # comes from the CORS_ORIGINS env var (e.g. "https://app.vercel.app").
     cors_origins: list[str] = [
         "http://localhost:5173",
@@ -42,19 +42,19 @@ class Settings(BaseSettings):
     ]
 
     # ── Database tuning ─────────────────────────────────────────────────────
-    sql_echo: bool = False # Log every SQL statement (dev only)
+    sql_echo: bool = False  # Log every SQL statement (dev only)
 
     # ── Scoring ─────────────────────────────────────────────────────────────
     # The minimum number of non-null feature values required before the
-    # ML model is trusted. Below this threshold the rule-based fallback fires.
+    # ML model is trusted.  Below this threshold the rule-based fallback fires.
     min_model_data_points: int = 6
 
     # Semantic version stamped on every assessment produced by the current
-    # model artefact. Bump when retraining.
+    # model artefact.  Bump when retraining.
     model_version: str = "0.1.0"
 
     # ── Alibaba Cloud Model Studio (Qwen-VL document parsing) ──────────────
-    # DashScope API key from https://bailian.console.aliyun.com/. When the
+    # DashScope API key from https://bailian.console.aliyun.com/.  When the
     # key is empty (or the API call fails), the document parser falls back to
     # deterministic mock extraction so demos work offline without spending
     # API quota — every response reports which mode produced it.

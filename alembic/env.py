@@ -2,7 +2,7 @@
 Alembic environment configuration.
 
 Imports the app's Settings so the migration URL always matches the running
-application. Also imports all ORM models via ``target_metadata`` so that
+application.  Also imports all ORM models via ``target_metadata`` so that
 ``alembic revision --autogenerate`` can diff against the current schema.
 """
 
@@ -15,7 +15,7 @@ from app.config import get_settings
 from app.database import Base
 
 # Import all models so they register with Base.metadata.
-import app.models # noqa: F401
+import app.models  # noqa: F401
 
 # Alembic Config object.
 config = context.config
@@ -49,7 +49,7 @@ def run_migrations_online() -> None:
     """Run migrations in 'online' mode (connect to the database).
 
     Uses NullPool since migrations are short-lived and don't benefit
-    from connection pooling. pool_pre_ping + connect_timeout handle
+    from connection pooling.  pool_pre_ping + connect_timeout handle
     Neon's serverless cold-start behaviour.
     """
     connectable = engine_from_config(

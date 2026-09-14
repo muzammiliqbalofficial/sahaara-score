@@ -2,10 +2,10 @@
 Utility bill record — monthly electricity, gas, or water bills.
 
 Design decisions:
-  - ``amount_billed`` and ``amount_paid`` are both nullable. A household that
+  - ``amount_billed`` and ``amount_paid`` are both nullable.  A household that
     received a bill but couldn't pay it yet still provides a signal (we see
     the billing amount and that payment is outstanding).
-  - ``days_late`` is nullable independently of payment amounts. A value of 0
+  - ``days_late`` is nullable independently of payment amounts.  A value of 0
     means on-time; NULL means unknown (e.g. the applicant only remembers the
     amount, not the timing).
   - ``billing_month`` is a Date truncated to the first of the month so we can
@@ -47,7 +47,7 @@ class UtilityRecord(Base):
     # First day of the billing period, stored as Date for sorting.
     billing_month: Mapped[date | None] = mapped_column(Date, nullable=True)
 
-    # Monetary values in PKR. Float is acceptable here — we're doing
+    # Monetary values in PKR.  Float is acceptable here — we're doing
     # statistical aggregation, not accounting.
     amount_billed: Mapped[float | None] = mapped_column(Float, nullable=True)
     amount_paid: Mapped[float | None] = mapped_column(Float, nullable=True)
@@ -61,7 +61,7 @@ class UtilityRecord(Base):
     )
 
     # Relationships ──────────────────────────────────────────────────────────
-    applicant: Mapped["Applicant"] = relationship( # noqa: F821
+    applicant: Mapped["Applicant"] = relationship(  # noqa: F821
         back_populates="utility_records"
     )
 

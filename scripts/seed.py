@@ -164,7 +164,7 @@ def _generate_utility_records(
         utility_types.append(UtilityType.WATER)
 
     # Payment behaviour profile for this applicant.
-    is_reliable = random.random() > 0.35 # 65% are mostly reliable
+    is_reliable = random.random() > 0.35  # 65% are mostly reliable
     base_late_prob = 0.1 if is_reliable else 0.5
 
     for month in months:
@@ -240,7 +240,7 @@ def _generate_academic_records(applicant_type: ApplicantType) -> list[AcademicRe
         # Choose scale based on qualification.
         if qual in (QualificationLevel.MATRIC, QualificationLevel.INTERMEDIATE):
             scale = ResultScale.PERCENTAGE
-            value = random.gauss(68, 12) # Mean ~68%, SD 12
+            value = random.gauss(68, 12)  # Mean ~68%, SD 12
             value = round(max(33, min(95, value)), 1)
         elif qual == QualificationLevel.DIPLOMA:
             scale = random.choice([ResultScale.PERCENTAGE, ResultScale.DIVISION])
@@ -262,7 +262,7 @@ def _generate_academic_records(applicant_type: ApplicantType) -> list[AcademicRe
 
         records.append(AcademicRecord(
             id=uuid.uuid4(),
-            applicant_id=uuid.uuid4(), # Will be replaced.
+            applicant_id=uuid.uuid4(),  # Will be replaced.
             institution=random.choice(INSTITUTIONS),
             qualification_level=qual,
             result_value=value,
@@ -307,7 +307,7 @@ def _generate_income_signals(
         else:
             amount = random.gauss(20000, 8000)
 
-        amount = max(8000, round(amount, -2)) # Round to nearest 100
+        amount = max(8000, round(amount, -2))  # Round to nearest 100
 
         evidence = random.choices(
             [EvidenceType.SELF_DECLARED, EvidenceType.DOCUMENTED, EvidenceType.VERIFIED],
@@ -320,7 +320,7 @@ def _generate_income_signals(
 
         signals.append(IncomeSignal(
             id=uuid.uuid4(),
-            applicant_id=uuid.uuid4(), # Will be replaced.
+            applicant_id=uuid.uuid4(),  # Will be replaced.
             source_type=source,
             declared_monthly_amount=amount,
             evidence_type=evidence,
@@ -430,13 +430,13 @@ def generate_applicants(n: int = 500) -> list[Applicant]:
 # hand-tuned rules to memorise.
 
 _LABEL_WEIGHTS: dict[str, float] = {
-    "payment_on_time_ratio": 0.12, # rule-based: 0.30
-    "longest_on_time_streak": 0.03, # rule-based: 0.10
-    "mean_days_late": 0.05, # rule-based: 0.10
-    "payment_consistency": 0.18, # rule-based: 0.10
-    "academic_signal": 0.22, # rule-based: 0.15
-    "household_burden": 0.25, # rule-based: 0.10
-    "income_confidence": 0.05, # rule-based: 0.08
+    "payment_on_time_ratio": 0.12,   # rule-based: 0.30
+    "longest_on_time_streak": 0.03,  # rule-based: 0.10
+    "mean_days_late": 0.05,          # rule-based: 0.10
+    "payment_consistency": 0.18,     # rule-based: 0.10
+    "academic_signal": 0.22,         # rule-based: 0.15
+    "household_burden": 0.25,        # rule-based: 0.10
+    "income_confidence": 0.05,       # rule-based: 0.08
     "total_income_normalised": 0.10, # rule-based: 0.07
 }
 
@@ -455,14 +455,14 @@ _FEATURE_MEANS: dict[str, float] = {
 def generate_labels(applicants: list[Applicant]) -> None:
     """
     Generate synthetic reviewer-approval labels from an independent latent
-    model. The weights deliberately differ from the rule-based scorer so
+    model.  The weights deliberately differ from the rule-based scorer so
     that the ML model learns genuine patterns rather than memorising rules.
 
     Adds ``reviewer_approved`` (bool) and ``approval_score`` (float 0-1)
     to each applicant in-place.
     """
     n = len(applicants)
-    print(" Generating independent labels...")
+    print("  Generating independent labels...")
 
     for idx, applicant in enumerate(applicants):
         feature_set = build_feature_vector(applicant)
@@ -501,8 +501,8 @@ def generate_labels(applicants: list[Applicant]) -> None:
         applicant.approval_score = round(continuous, 4)
 
     approved_count = sum(1 for a in applicants if a.reviewer_approved)
-    print(f" Approved: {approved_count}/{n} ({approved_count / n:.0%})")
-    print(f" Denied: {n - approved_count}/{n} ({(n - approved_count) / n:.0%})")
+    print(f"    Approved: {approved_count}/{n} ({approved_count / n:.0%})")
+    print(f"    Denied:   {n - approved_count}/{n} ({(n - approved_count) / n:.0%})")
 
 
 def main():
@@ -537,18 +537,18 @@ def main():
     )
     zero = len(applicants) - thin - medium - full
 
-    print(f" Thin (1 category): {thin}")
-    print(f" Medium (2 categories): {medium}")
-    print(f" Full (3 categories): {full}")
-    print(f" Zero (no data): {zero}")
+    print(f"  Thin (1 category):   {thin}")
+    print(f"  Medium (2 categories): {medium}")
+    print(f"  Full (3 categories):   {full}")
+    print(f"  Zero (no data):        {zero}")
 
     # Count total records.
     n_utility = sum(len(a.utility_records) for a in applicants)
     n_academic = sum(len(a.academic_records) for a in applicants)
     n_income = sum(len(a.income_signals) for a in applicants)
-    print(f"\n Total utility records: {n_utility}")
-    print(f" Total academic records: {n_academic}")
-    print(f" Total income signals: {n_income}")
+    print(f"\n  Total utility records:  {n_utility}")
+    print(f"  Total academic records: {n_academic}")
+    print(f"  Total income signals:   {n_income}")
 
     # Generate independent training labels from features.
     generate_labels(applicants)

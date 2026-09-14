@@ -3,7 +3,7 @@ Applicant model — the central entity every other record hangs off.
 
 Design decisions:
   - ``identity_reference`` is a free-text CNIC or B-Form number stored as a
-    string (CNICs have dashes and leading zeros). We do NOT enforce a unique
+    string (CNICs have dashes and leading zeros).  We do NOT enforce a unique
     constraint at DB level yet because the same person may apply under
     different reference types; uniqueness should be enforced at the service
     layer with proper deduplication logic.
@@ -72,22 +72,22 @@ class Applicant(Base):
     )
 
     # Relationships ──────────────────────────────────────────────────────────
-    utility_records: Mapped[list["UtilityRecord"]] = relationship( # noqa: F821
+    utility_records: Mapped[list["UtilityRecord"]] = relationship(  # noqa: F821
         back_populates="applicant",
         cascade="all, delete-orphan",
         lazy="selectin",
     )
-    academic_records: Mapped[list["AcademicRecord"]] = relationship( # noqa: F821
+    academic_records: Mapped[list["AcademicRecord"]] = relationship(  # noqa: F821
         back_populates="applicant",
         cascade="all, delete-orphan",
         lazy="selectin",
     )
-    income_signals: Mapped[list["IncomeSignal"]] = relationship( # noqa: F821
+    income_signals: Mapped[list["IncomeSignal"]] = relationship(  # noqa: F821
         back_populates="applicant",
         cascade="all, delete-orphan",
         lazy="selectin",
     )
-    assessments: Mapped[list["Assessment"]] = relationship( # noqa: F821
+    assessments: Mapped[list["Assessment"]] = relationship(  # noqa: F821
         back_populates="applicant",
         cascade="all, delete-orphan",
         lazy="selectin",

@@ -5,15 +5,15 @@ Entry point:
     python -m training.train
 
 Trains a regression model that predicts a continuous approval score (0-1)
-from applicant features. Missing values are preserved as NaN because
+from applicant features.  Missing values are preserved as NaN because
 LightGBM handles them natively and imputation would destroy the
 "missing = informative" signal.
 
 Calibration layer (v1.1):
   After the initial diagnosis showed poor calibration (ECE=0.052) and
-  weak AUC (0.5986), an isotonic calibration layer was added. This
+  weak AUC (0.5986), an isotonic calibration layer was added.  This
   maps raw LightGBM outputs to calibrated probabilities using a held-out
-  calibration set. Result: AUC=0.6567, ECE=0.0000.
+  calibration set.  Result: AUC=0.6567, ECE=0.0000.
 
 Reports:
   - Overall accuracy, precision, recall, ROC AUC, confusion matrix
@@ -39,7 +39,7 @@ from training.dataset import load_dataset, stratified_split
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(message)s",
+    format="%(asctime)s  %(levelname)-8s  %(message)s",
     datefmt="%H:%M:%S",
 )
 logger = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ def fit_calibrator(
 
     The calibrator maps raw LightGBM outputs (which are regression values,
     not probabilities) to calibrated probabilities that correspond to
-    real approval rates. This was added after the diagnostic showed
+    real approval rates.  This was added after the diagnostic showed
     that calibration improved AUC from 0.60 to 0.66 and ECE from 0.05
     to 0.00.
     """
@@ -122,8 +122,8 @@ def _confusion_matrix_str(y_true: np.ndarray, y_pred_binary: np.ndarray) -> str:
     from sklearn.metrics import confusion_matrix
     cm = confusion_matrix(y_true, y_pred_binary)
     return (
-        f" TN={cm[0][0]:4d} FP={cm[0][1]:4d}\n"
-        f" FN={cm[1][0]:4d} TP={cm[1][1]:4d}"
+        f"  TN={cm[0][0]:4d}  FP={cm[0][1]:4d}\n"
+        f"  FN={cm[1][0]:4d}  TP={cm[1][1]:4d}"
     )
 
 
@@ -230,75 +230,75 @@ def print_report(report: dict, feature_importance: dict) -> None:
     """Print an honest evaluation report."""
 
     print("\n" + "=" * 70)
-    print(" SAHAARA SCORE — MODEL EVALUATION REPORT")
+    print("  SAHAARA SCORE — MODEL EVALUATION REPORT")
     print("=" * 70)
 
     ov = report["overall"]
-    print(f"\n OVERALL (n={ov['n']}, positive={ov['n_positive']})")
-    print(f" Accuracy: {ov['accuracy']:.4f}")
-    print(f" Precision: {ov['precision']:.4f}")
-    print(f" Recall: {ov['recall']:.4f}")
-    print(f" ROC AUC: {ov['roc_auc']:.4f}")
-    print(f" MSE: {ov['mse']:.4f}")
-    print(f" Confusion Matrix:")
+    print(f"\n  OVERALL  (n={ov['n']}, positive={ov['n_positive']})")
+    print(f"    Accuracy:   {ov['accuracy']:.4f}")
+    print(f"    Precision:  {ov['precision']:.4f}")
+    print(f"    Recall:     {ov['recall']:.4f}")
+    print(f"    ROC AUC:    {ov['roc_auc']:.4f}")
+    print(f"    MSE:        {ov['mse']:.4f}")
+    print(f"    Confusion Matrix:")
     print(ov["confusion_matrix"])
 
-    print(f"\n PER-TIER BREAKDOWN")
+    print(f"\n  PER-TIER BREAKDOWN")
     print("-" * 70)
     for tier in ["thin", "medium", "full"]:
         t = report["by_tier"].get(tier, {})
         n = t.get("n", 0)
         if n == 0:
-            print(f"\n {tier.upper():8s} (n=0 — no samples)")
+            print(f"\n  {tier.upper():8s}  (n=0 — no samples)")
             continue
-        print(f"\n {tier.upper():8s} (n={n}, positive={t['n_positive']})")
-        print(f" Accuracy: {t['accuracy']:.4f}")
-        print(f" Precision: {t['precision']:.4f}")
-        print(f" Recall: {t['recall']:.4f}")
-        print(f" ROC AUC: {t['roc_auc']:.4f}")
-        print(f" MSE: {t['mse']:.4f}")
-        print(f" Mean predicted score: {t['mean_predicted_score']:.3f}")
-        print(f" Mean actual score: {t['mean_actual_score']:.3f}")
-        print(f" Confusion Matrix:")
+        print(f"\n  {tier.upper():8s}  (n={n}, positive={t['n_positive']})")
+        print(f"    Accuracy:   {t['accuracy']:.4f}")
+        print(f"    Precision:  {t['precision']:.4f}")
+        print(f"    Recall:     {t['recall']:.4f}")
+        print(f"    ROC AUC:    {t['roc_auc']:.4f}")
+        print(f"    MSE:        {t['mse']:.4f}")
+        print(f"    Mean predicted score: {t['mean_predicted_score']:.3f}")
+        print(f"    Mean actual score:    {t['mean_actual_score']:.3f}")
+        print(f"    Confusion Matrix:")
         print(t["confusion_matrix"])
 
-    print(f"\n CALIBRATION CHECK")
+    print(f"\n  CALIBRATION CHECK")
     print("-" * 70)
     cal = report["calibration"]
-    print(f" Expected Calibration Error (ECE): {cal['ece']:.4f}")
+    print(f"    Expected Calibration Error (ECE): {cal['ece']:.4f}")
     print()
     for b in cal["bins"]:
         if b["n"] == 0:
-            print(f" Bin {b['bin']}: empty")
+            print(f"    Bin {b['bin']}: empty")
         else:
             bar = "#" * int(b["approval_rate"] * 30) if b["approval_rate"] else ""
             print(
-                f" Bin {b['bin']} n={b['n']:4d} "
-                f"avg_pred={b['avg_pred']:.3f} "
-                f"approval_rate={b['approval_rate']:.3f} {bar}"
+                f"    Bin {b['bin']}  n={b['n']:4d}  "
+                f"avg_pred={b['avg_pred']:.3f}  "
+                f"approval_rate={b['approval_rate']:.3f}  {bar}"
             )
 
     if cal["ece"] > 0.10:
         print(
-            "\n WARNING: ECE > 0.10. The score is NOT well-calibrated."
-            "\n A predicted score of 0.7 does not reliably correspond to"
-            "\n a meaningfully better outcome rate than 0.5."
-            "\n The score is a ranking, not a calibrated probability."
+            "\n    WARNING: ECE > 0.10.  The score is NOT well-calibrated."
+            "\n    A predicted score of 0.7 does not reliably correspond to"
+            "\n    a meaningfully better outcome rate than 0.5."
+            "\n    The score is a ranking, not a calibrated probability."
         )
     elif cal["ece"] > 0.05:
         print(
-            "\n NOTE: ECE is moderate. The score provides some calibration"
-            "\n but is not precise enough for probability-level decisions."
+            "\n    NOTE: ECE is moderate.  The score provides some calibration"
+            "\n    but is not precise enough for probability-level decisions."
         )
     else:
-        print("\n Calibration is acceptable.")
+        print("\n    Calibration is acceptable.")
 
-    print(f"\n FEATURE IMPORTANCE (gain)")
+    print(f"\n  FEATURE IMPORTANCE (gain)")
     print("-" * 70)
     sorted_fi = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
     for name, gain in sorted_fi:
         bar = "#" * int(gain / max(v for _, v in sorted_fi) * 30) if sorted_fi else ""
-        print(f" {name:30s} {gain:8.1f} {bar}")
+        print(f"    {name:30s}  {gain:8.1f}  {bar}")
 
     print("\n" + "=" * 70)
 
@@ -307,7 +307,7 @@ def print_report(report: dict, feature_importance: dict) -> None:
 
 
 def save_artifacts(model, calibrator, report: dict, feature_importance: dict) -> str:
-    """Save model, calibrator, and metadata. Return the version string."""
+    """Save model, calibrator, and metadata.  Return the version string."""
     import joblib
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
@@ -358,7 +358,7 @@ def main():
     n = len(data["y"])
     tier_counts = {t: int((data["tiers"] == t).sum()) for t in ["thin", "medium", "full"]}
     logger.info(
-        "Dataset: %d applicants (thin=%d, medium=%d, full=%d)",
+        "Dataset: %d applicants  (thin=%d, medium=%d, full=%d)",
         n, tier_counts["thin"], tier_counts["medium"], tier_counts["full"],
     )
     logger.info("Features: %s", ", ".join(data["feature_names"]))
@@ -367,7 +367,7 @@ def main():
     nan_counts = np.isnan(data["X"]).sum(axis=0)
     logger.info("NaN counts per feature:")
     for name, nan_count in zip(data["feature_names"], nan_counts):
-        logger.info(" %s: %d/%d (%.0f%%)", name, nan_count, n, nan_count / n * 100)
+        logger.info("  %s: %d/%d (%.0f%%)", name, nan_count, n, nan_count / n * 100)
 
     # Stratified split: 60% train, 20% calibration, 20% test.
     from sklearn.model_selection import train_test_split
@@ -391,13 +391,13 @@ def main():
     )
 
     logger.info(
-        "Train: %d Calibration: %d Test: %d",
+        "Train: %d  Calibration: %d  Test: %d",
         len(y_train), len(y_cal), len(y_test),
     )
     train_tiers = {t: int((t_train == t).sum()) for t in ["thin", "medium", "full"]}
     test_tiers = {t: int((t_test == t).sum()) for t in ["thin", "medium", "full"]}
     logger.info("Train tiers: %s", train_tiers)
-    logger.info("Test tiers: %s", test_tiers)
+    logger.info("Test tiers:  %s", test_tiers)
 
     # Train.
     logger.info("Training LightGBM...")
@@ -428,8 +428,8 @@ def main():
 
     # Save.
     version = save_artifacts(model, calibrator, report, feature_importance)
-    print(f"\n Model version: {version}")
-    print(f" Saved to: {MODEL_DIR}")
+    print(f"\n  Model version: {version}")
+    print(f"  Saved to: {MODEL_DIR}")
 
     # Clear scoring service cache so next API call loads the new model.
     clear_model_cache()
